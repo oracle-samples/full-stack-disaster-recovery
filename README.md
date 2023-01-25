@@ -12,10 +12,6 @@ This repository contains code samples related to Full Stack Disaster Recovery Cl
 
 https://docs.oracle.com/en-us/iaas/disaster-recovery/doc/overview-disaster-recovery.html
 
-## Examples
-
-*Describe any included examples or provide a link to a demo/tutorial*
-
 ## Need Help?
 
 Create GitHub [Issue](https://github.com/oracle-samples/full-stack-disaster-recovery/issues)
