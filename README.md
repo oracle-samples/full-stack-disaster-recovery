@@ -16,9 +16,9 @@ https://docs.oracle.com/en-us/iaas/disaster-recovery/doc/overview-disaster-recov
 
 *Describe any included examples or provide a link to a demo/tutorial*
 
-## Help
+## Need Help?
 
-*Inform users on where to get help or how to receive official support from Oracle (if applicable)*
+Create GitHub [Issue](https://github.com/oracle-samples/full-stack-disaster-recovery/issues)
 
 ## Security
 
