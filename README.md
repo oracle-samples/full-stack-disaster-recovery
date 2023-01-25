@@ -1,6 +1,8 @@
-# Full Stack Disaster Recovery Cloud Service
+# Full Stack Disaster Recovery Cloud Service Samples
 
 Full Stack Disaster Recovery (FSDR) is an Oracle Cloud Infrastructure (OCI) disaster recovery orchestration and management service that provides comprehensive disaster recovery capabilities for all layers of an application stack, including infrastructure, middleware, database, and application.
+
+This repository contains code samples related to Full Stack Disaster Recovery Cloud Service from Oracle.
 
 ## Installation
 
