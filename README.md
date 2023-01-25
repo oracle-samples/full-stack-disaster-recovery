@@ -10,7 +10,7 @@ This repository contains code samples related to Full Stack Disaster Recovery Cl
 
 ## Documentation
 
-https://docs.oracle.com/en-us/iaas/disaster-recovery/doc/overview-disaster-recovery.html
+You can find the online documentation for Oracle Full Stack Disaster Recovery Cloud Service at [docs.oracle.com] (https://docs.oracle.com/en-us/iaas/disaster-recovery/doc/overview-disaster-recovery.html)
 
 ## Need Help?
 
