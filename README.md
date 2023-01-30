@@ -8,7 +8,7 @@ This repository contains code samples related to Full Stack Disaster Recovery Cl
 
 Download the scripts and copy them to the OCI Compute instance where you want to execute these scripts.
 
-Run the script using the command syntax: python <script_name> <arguments>
+Run the script using the command syntax: python <script_name> <script_arguments>
   
 Here is a sample command:
   
