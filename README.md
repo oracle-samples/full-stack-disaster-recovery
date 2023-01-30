@@ -6,7 +6,13 @@ This repository contains code samples related to Full Stack Disaster Recovery Cl
 
 ## Installation
 
-*Provide detailed step-by-step installation instructions*
+Download the scripts and copy them to the OCI Compute instance where you want to execute these scripts.
+
+Run the script using the command syntax: python <script_name> <arguments>
+  
+Here is a sample command:
+  
+/usr/bin/python3 /tmp/fsdr/fullstackdr_script_executor.py local --mode precheck --script_interpreter ‘/bin/sh’ --script_path ‘/tmp/fsdr/scriptexecutortest.sh’ --script_arguments ‘FSDR1 FSDR2’
 
 ## Documentation
 
