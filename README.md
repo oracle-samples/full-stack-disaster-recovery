@@ -18,7 +18,7 @@ In the above sample command, we are assuming that the scripts are available in t
 
 ## Documentation
 
-You can find the online documentation for Oracle Full Stack Disaster Recovery Cloud Service at [docs.oracle.com](https://docs.oracle.com/en-us/iaas/disaster-recovery/doc/overview-disaster-recovery.html)
+You can find the online documentation for Oracle Full Stack Disaster Recovery Cloud Service at [docs.oracle.com](https://docs.oracle.com/en-us/iaas/disaster-recovery/doc/overview-disaster-recovery.html).
 
 ## Need Help?
 
@@ -26,7 +26,11 @@ Create GitHub [Issue](https://github.com/oracle-samples/full-stack-disaster-reco
 
 ## Security
 
-Please consult the [security guide](./SECURITY.md) for our responsible security vulnerability disclosure process
+Please consult the [security guide](./SECURITY.md) for our responsible security vulnerability disclosure process.
+
+## Contributions
+
+Community contributions are not currently being accepted.
 
 ## License
 
