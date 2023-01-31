@@ -12,7 +12,9 @@ Run the script using the command syntax: python <script_name> <script_arguments>
   
 Here is a sample command:
   
-/usr/bin/python3 /tmp/fsdr/fullstackdr_script_executor.py local --mode precheck --script_interpreter ‘/bin/sh’ --script_path ‘/tmp/fsdr/scriptexecutortest.sh’ --script_arguments ‘FSDR1 FSDR2’
+<i> /usr/bin/python3 /home/opc/fsdr/fullstackdr_script_executor.py local --mode execute --script_interpreter '/bin/sh' --script_path '/home/opc/fsdr/my_custom_script.sh' --script_arguments  'FSDR1 FSDR2' </i>
+
+In the above sample command, we are assuming that the scripts are available in the folder named /home/opc/fsdr on the compute instance.  The <i> my_custom_script.sh </i> is the user defined script that the user wants to execute.  
 
 ## Documentation
 
