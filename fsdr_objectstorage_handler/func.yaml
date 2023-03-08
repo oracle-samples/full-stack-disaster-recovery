@@ -1,0 +1,8 @@
+schema_version: 20180708
+name: oci-objectstorage-fullstackdr-python
+version: 0.0.22
+runtime: python
+build_image: fnproject/python:3.9-dev
+run_image: fnproject/python:3.9
+entrypoint: /python/bin/fdk /function/oss-dr-func.py handler
+memory: 256
