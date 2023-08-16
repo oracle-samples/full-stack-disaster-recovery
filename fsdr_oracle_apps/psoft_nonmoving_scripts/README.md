@@ -23,19 +23,19 @@ Automate recovery for single instance Oracle PeopleSoft (video 2)- https://www.y
 
 Oracle Peoplesoft scripts for Full Stack DR switchover and failover.
 
-1.app_shutdown.sh - To shutdown PeopleSoft Application Server domain
-2.app_boot.sh - To startup PeopleSoft Application Server domain
-3.prcs_shutdown.sh - To shutdown PeopleSoft Process Scheduler domain in Linux
-4.prcs_start.sh - To startup PeopleSoft Process Scheduler domain in Linux
-5.psnt_shutdown_domain.bat - To shutdown PeopleSoft Process Scheduler domain in Windows
-6.psnt_start_domain.bat - To startup PeopleSoft Process Scheduler domain in Windows
-7.web_shutdown.sh - To shudtown PeopleSoft Web Server domain
-8.web_boot.sh - To startup PeopleSoft Web Server domain
-9.fsdr-rsync-psft.sh - To disable and enable rsync cronb jobs for PeopleSoft application and customisations files and folders
-10.elk_kill.sh - To stop Elastic Search services
-11.elk_start.sh - To start Elastic Search services
-12.kibana_kill.sh - To stop Kibana services
-13.kibana_start.sh - To start Kibana services
+01. app_shutdown.sh - To shutdown PeopleSoft Application Server domain  
+02. app_boot.sh - To startup PeopleSoft Application Server domain  
+03. prcs_shutdown.sh - To shutdown PeopleSoft Process Scheduler domain in Linux  
+04. prcs_start.sh - To startup PeopleSoft Process Scheduler domain in Linux  
+05. psnt_shutdown_domain.bat - To shutdown PeopleSoft Process Scheduler domain in Windows  
+06. psnt_start_domain.bat - To startup PeopleSoft Process Scheduler domain in Windows  
+07. web_shutdown.sh - To shudtown PeopleSoft Web Server domain  
+08. web_boot.sh - To startup PeopleSoft Web Server domain  
+09. fsdr-rsync-psft.sh - To disable and enable rsync cronb jobs for PeopleSoft application and customisations files and folders  
+10. elk_kill.sh - To stop Elastic Search services  
+11. elk_start.sh - To start Elastic Search services  
+12. kibana_kill.sh - To stop Kibana services  
+13. kibana_start.sh - To start Kibana services  
 
 These scripts are provided for generic guidance. You can either use your own scripts or customize the scripts according to your corporate policy and security requirements.
 
