@@ -19,6 +19,8 @@ Deploy Oracle Analytics Cloud Service for Disaster Recovery (video 1)- https://w
  
 Automate recovery for Oracle Analytics Cloud Service(video 2)- https://www.youtube.com/watch?v=hY_LoGR5edU
 
+Scripts used to automate recovery for Oracle Analytics Cloud Service (video 3) - https://www.youtube.com/watch?v=r8gQDDMxOvA
+
 2. Prepare Source OCI region and Standby OCI region. Administrator privileges or Configure the required Oracle Identity and Access Management (IAM) policies for Full Stack Disaster Recovery as outlined here: Configuring Identity and Access Management (IAM) policies to use Full Stack DR and Policies for Full Stack Disaster Recovery -https://docs.oracle.com/en-us/iaas/disaster-recovery/doc/disaster-recovery-policies.html and Configuring Identity and Access Management (IAM) policies to use Full Stack DR https://blogs.oracle.com/maa/post/iam-policies-fullstackdr
 
 ## Oracle Analytics Cloud Scripts
