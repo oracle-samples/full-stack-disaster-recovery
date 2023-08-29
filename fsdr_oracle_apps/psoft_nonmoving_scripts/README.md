@@ -13,9 +13,11 @@ Refer the Technical paper - Disaster Recovery Configuration for PeopleSoft in Or
 
 Watch these videos for more details:
  
-Deploy single instance Oracle PeopleSoft Application for DR (video 1)- https://www.youtube.com/watch?v=TCLlRwmGwlw
+Deploy single instance Oracle PeopleSoft Application for DR (video 1) - https://www.youtube.com/watch?v=TCLlRwmGwlw
  
-Automate recovery for single instance Oracle PeopleSoft (video 2)- https://www.youtube.com/watch?v=QDFCgYTOC5g
+Automate recovery for single instance Oracle PeopleSoft (video 2) - https://www.youtube.com/watch?v=QDFCgYTOC5g
+
+Scripts used to automate recovery for single instance Oracle PeopleSoft (video 3) -  https://www.youtube.com/watch?v=1ASsKYyGQKo
 
 2. Prepare Source OCI region and Standby OCI region. Administrator privileges or Configure the required Oracle Identity and Access Management (IAM) policies for Full Stack Disaster Recovery as outlined here: Configuring Identity and Access Management (IAM) policies to use Full Stack DR and Policies for Full Stack Disaster Recovery -https://docs.oracle.com/en-us/iaas/disaster-recovery/doc/disaster-recovery-policies.html and Configuring Identity and Access Management (IAM) policies to use Full Stack DR https://blogs.oracle.com/maa/post/iam-policies-fullstackdr
 
