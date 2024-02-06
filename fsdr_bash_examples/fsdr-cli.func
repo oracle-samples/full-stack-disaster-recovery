@@ -1,0 +1,376 @@
+#!/bin/bash
+#
+# Copyright (c) 2024, Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl/
+#
+# This file contains bash functions that perform common, frequently used OCI CLI
+# commands to list, get & update OCI resources related to Full Stack DR such as
+# compute, DNS, DR protection groups, DR plans, etc.
+#
+#
+# Example script written by Greg King, Full Stack DR (example, not for production)
+# ============================================================================
+
+# ============================================================================
+# Get OCID for using the name of a specific compute instance
+# ============================================================================
+cliGetComputeOcidOne () {
+  declare srvr_name=$1
+  declare drpg_ocid=$2
+  declare drpg_key=$3
+  declare srvr_ocid
+  declare rtn=0
+
+  srvr_ocid=$(oci compute instance list --compartment-id "$drpg_ocid" --region "$drpg_key" --display-name "$srvr_name" 2>/dev/null | grep \"id\" | awk -F'"' '{print $4}')
+  rtn=$?
+
+  echo "$srvr_ocid"
+  return $rtn
+}
+
+# ============================================================================
+# Get OCID for all compute instances that are members of a DRPG
+# ============================================================================
+cliGetComputeOcidAll () {
+  declare drpg_ocid=$1
+  declare drpg_key=$2
+  declare srvr_ocid
+  declare rtn=0
+
+  srvr_ocid=$(oci disaster-recovery dr-protection-group get --dr-protection-group-id "$drpg_ocid" --region "$drpg_key" | grep member-id | grep -E '.instance.oc|loadbalancer.oc' | awk -F\" '{print $4}')
+  rtn=$?
+
+  echo "$srvr_ocid"
+  return $rtn
+}
+
+# ============================================================================
+# CLI command to get compute instance name from OCID
+# ============================================================================
+cliGetComputeName () {
+  declare srvr_ocid=$1  # OCID of compute instance
+  declare drpg_key=$2  # region key where DRPG exists
+  declare srvr_name
+  
+  srvr_name=$(oci compute instance get --instance-id "$srvr_ocid" --region="$drpg_key" | grep \"display-name\": | awk -F\" '{print $4}')
+  rtn=$?
+
+  echo "$srvr_name"
+  return $rtn
+}
+
+# ============================================================================
+# CLI command to get FQDN from the SOA record of the DNS public zone.
+# ============================================================================
+cliGetDnsFQDN () {
+  declare dns_zone=$1  # OCI DNS public zone name
+  declare dns_key=$2  # region key for OCI primary DNS public zone
+  declare dns_fqdn
+  
+  dns_fqdn=$(oci dns record zone get --zone-name-or-id "$dns_zone" --region "$dns_key" 2>/dev/null | grep -E -B 5 '"rtype": "SOA"' | grep \"domain\": | awk -F\" '{print $4}')
+
+  if [ -n "$dns_fqdn" ]; then
+    echo "$dns_fqdn"
+    return 0
+  else
+    return 1
+  fi
+}
+
+# ============================================================================
+# Get IP address for compute instance from VNIC
+# ============================================================================
+cliGetDrpgPlans () {
+  declare drpg_ocid=$1
+  declare drpg_key=$2
+  declare drpl_list
+
+  drpl_list=$(oci disaster-recovery dr-plan list --dr-protection-group-id "$drpg_ocid" --region "$drpg_key" | grep '"id":' | awk -F\" '{print $4}')
+
+  if [ -n "$drpl_list" ]; then
+    echo "$drpl_list"
+    return 0
+  else
+    return 1
+  fi
+}
+
+# ============================================================================
+# Get DR protection group name only
+# ============================================================================
+cliGetDrpgName () {
+  declare drpg_ocid=$1
+  declare drpg_key=$2
+  declare drpg_name
+
+  drpg_name=$(oci disaster-recovery dr-protection-group get --dr-protection-group-id "$drpg_ocid" --region "$drpg_key" 2>/dev/null | grep display-name | awk -F\" '{print $4}' )
+
+  if [ -n "$drpg_name" ]; then
+    echo "$drpg_name"
+    return 0
+  else
+    return 1
+  fi
+}
+
+# ============================================================================
+# Get and write a DRPG record to a file in JSON format
+#
+# $TIMESTMP is global var set in calling script
+#
+# Returns name of file with content in JSON format
+# ============================================================================
+cliGetDrpgRecordJson () {
+  declare drpg_ocid=$1
+  declare drpg_key=$2
+  declare drpg_rcrd="/tmp/DRPG-${drpg_ocid}-${TIMESTMP}.json"
+
+  oci disaster-recovery dr-protection-group get --dr-protection-group-id "$drpg_ocid" --region "$drpg_key" >$drpg_rcrd
+
+  if [ -n "$drpg_rcrd" ]; then
+    echo "$drpg_rcrd"
+    return 0
+  else
+    return 1
+  fi
+}
+
+# ============================================================================
+# Get and write a DR plan record to a file in JSON format
+#
+# $TIMESTMP is global var set in calling script
+#
+# Returns name of file that contains object data in JSON format
+# ============================================================================
+cliGetDrPlanRecordJson () {
+  declare drpl_ocid=$1
+  declare drpg_key=$2
+  declare plan_rcrd="/tmp/PLAN-${drpl_ocid}-${TIMESTMP}.json"
+
+  oci disaster-recovery dr-plan get --dr-plan-id "$drpl_ocid" --region "$drpg_key" >$plan_rcrd
+
+  if [ -n "$plan_rcrd" ]; then
+    echo "$plan_rcrd"
+    return 0
+  else
+    return 1
+  fi
+}
+
+# ============================================================================
+# Get old IP address for compute instance from DNS record
+# ============================================================================
+cliGetIPFromDNS () {
+  declare srvr_fqdn=$1  # passed from updDns
+  declare dns_zone=$2  # OCI public DNS zone name
+  declare dns_key=$3  # OCI public DNS zone name
+  declare old_ip_addr  # the IP we find assocated with DNS record
+
+  old_ip_addr=$(oci dns record rrset get --region "$dns_key" --zone-name-or-id "$dns_zone" --rtype A --domain "$srvr_fqdn" | grep rdata | awk -F\" '{print $4}')
+
+  if [ -n "$old_ip_addr" ]; then
+    echo "$old_ip_addr"
+    return 0
+  else
+    return 1
+  fi
+}
+
+# ============================================================================
+# Get IP address for compute instance from DNS record that is in JSON format
+#
+# This is found in the data gathered from "oci dns zone get" we used
+# to create the JSON_NEW file
+# ============================================================================
+cliGetIPFromJson () {
+  declare srvr_name=$1
+  declare old_ip_addr
+
+  old_ip_addr=$(grep -A2 "$srvr_name." $JSON_NEW | grep rdata | awk -F'"' '{print $4}')
+
+  if [ -n "$old_ip_addr" ]; then
+    echo "$old_ip_addr"
+    return 0
+  else
+    return 1
+  fi
+}
+
+# ============================================================================
+# Get FQDN of load balancer
+# ============================================================================
+cliGetLbFQDN () {
+  declare lb_ocid=$1  # OCID of load balancer instance
+  declare drpg_key=$2  # region key where target LB exists
+  declare dns_fqdn=$3
+  declare lb_fqdn
+
+  lb_fqdn=$(oci lb load-balancer get --load-balancer-id "$lb_ocid" --region "$drpg_key" | grep '"hostname":' | grep "$dns_fqdn" | awk -F\" '{print $4}')
+  rtn=$?
+
+  echo "$lb_fqdn"
+  return $rtn
+}
+
+# ============================================================================
+# Get IP address of load balancer
+# ============================================================================
+cliGetLbIPFromOcid () {
+  declare lb_ocid=$1  # OCID of load balancer instance
+  declare drpg_key=$2  # region key where target LB exists
+  declare lb_ip
+
+  lb_ip=$(oci lb load-balancer get --load-balancer-id "$lb_ocid" --region "$drpg_key" | grep -E -B 1 '"is-public": true' | grep '"ip-address":' | awk -F\" '{print $4}')
+  rtn=$?
+
+  echo "$lb_ip"
+  return $rtn
+}
+
+# ============================================================================
+# Get IP address for compute instance from VNIC.  This only returns the IP
+# assigned to the  primary VNIC
+# ============================================================================
+cliGetIPFromVNIC () {
+  declare srvr_ocid=$1  # OCID of compute instance
+  declare drpg_key=$2  # region key where target LB exists
+  declare vnic_ip
+
+  vnic_ip=$(oci compute instance list-vnics --instance-id "$srvr_ocid" --region "$drpg_key" | grep -E -A 5 '"is-primary": true' | grep \"public-ip\": | awk -F\" '{print $4}')
+  rtn=$?
+
+  echo "$vnic_ip"
+  return $rtn
+}
+
+# ============================================================================
+# Get region key from an OCID
+# ============================================================================
+cliGetRegionKeyFromOcid () {
+  declare ocid=$1  # OCID of DR plan, protection group, compute, etc
+  declare rgion_key
+
+  rgion_key=$(echo "$ocid" | awk -F. '{print $4}')
+
+  if [ -n "$rgion_key" ]; then
+    echo "$rgion_key"
+    return 0
+  else
+    return 1
+  fi
+}
+
+# ============================================================================
+# Get a list of all VNIC OCIDs associated with a compute instance
+# ============================================================================
+cliGetSrvrVnicAll () {
+  declare srvr_ocid=$1
+  declare vnic_list
+
+  vnic_list=$(oci compute vnic-attachment list --compartment-id "$CMPT_OCID" --instance-id "$srvr_ocid" | grep "vnic-id" | awk -F'"' '{print $4}')
+
+  echo "$vnic_list"
+  return $rtn
+}
+
+# ============================================================================
+# CLI update command using JSON_NEW
+# ============================================================================
+cliUpdDnsRecord () {
+  declare srvr_fqdn=$1  # passed from updDns
+  declare dns_key=$2
+  declare dns_zone=$3
+  declare chk=0
+
+  oci dns record rrset update --region "$dns_key" --zone-name-or-id "$dns_zone" --rtype A --domain "$srvr_fqdn" --items file://${JSON_NEW} --force >/dev/null
+  chk=$?
+
+  if [ "$chk" -eq 0 ]; then
+    return 0
+  else
+   return 1  # CLI update command failed
+  fi
+}
+
+# ============================================================================
+# CLI command to get DNS record for a single compute name.  This creates a
+# JSON file containing the record.  The file will be modified later on with
+# current IP assigned to the VNIC and used by cliUpdDnsRecord function
+# ============================================================================
+cliWrtDnsRecordToJson () {
+  declare srvr_fqdn=$1  # passed from updDns
+  declare dns_zone=$2  # OCI public DNS zone name
+  declare dns_key=$3  # OCI public DNS zone name
+  declare outfile=$4
+
+  oci dns record rrset get --region "$dns_key" --zone-name-or-id "$dns_zone" --rtype A --domain "$srvr_fqdn" >"$outfile"
+  return $?
+}
+
+# ============================================================================
+# Create the JSON_NEW file
+#
+# - Copy the JSON_CUR file to create JSON_NEW
+# - Modify JSON_NEW so json string is in a form CLI update command is expecting
+# ============================================================================
+jsonBldNew () {
+  declare len_head
+  declare len_tail
+  declare len_ttl
+  declare rtn=0
+
+  len_ttl=$(cat "${JSON_CUR}" | wc -l) # total length of file
+  len_tail=$((len_ttl - 2))            # remove first 2 lines
+  len_head=$((len_tail - 4))           # remove last 4 lines
+
+  # ----
+  # Create output json file to use with CLI update command.
+  # Needs to have first 2 lines and last 4 lines removed
+  # ----
+  tail -n"${len_tail}" "${JSON_CUR}" | head -n"${len_head}" >"$JSON_NEW" # create json file minus first & last lines
+  rtn=$?
+
+  # ----
+  # Remove "items": from first line of output json file
+  # ----
+  if [ "$rtn" -eq 0 ]; then
+    sed -i 's/"items":\ //' "$JSON_NEW"
+    rtn=$?
+  else
+    rtn=1
+  fi
+
+  return $rtn
+}
+
+# ============================================================================
+# Modify the JSON update file with new IPs 
+# ============================================================================
+jsonModNew () {
+  declare new_ip_addr=$2 # new IP assigned to VNIC by OCI after recovery operation
+  declare old_ip_addr=$1 # old IP that is still in OCI DNS
+
+  if [ "$new_ip_addr" != "$old_ip_addr" ]; then
+    sed -i "s/$old_ip_addr/$new_ip_addr/g" $JSON_NEW
+    chk=$?
+
+    if [ "$chk" -eq 0 ]; then
+      return 0  # everything is good; IP updated in json file
+    else
+      return 1  # something was wrong with sed
+    fi
+  elif [ "$new_ip_addr" == "$old_ip_addr" ]; then
+    return 2  # IP already correct in DNS
+  fi
+}
+
+# ============================================================================
+# Create log file
+# ============================================================================
+logInit () {
+  declare loghost=$1
+  declare logstrng=$2
+  
+  echo "INFO: Creating logfile on ${loghost}: ${LOGFILE}"  # Print to OCI log only
+  echo "INFO: $logstrng"  | tee "${LOGFILE}"  # Create log file on local host
+}
