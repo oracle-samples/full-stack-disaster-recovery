@@ -1,0 +1,16 @@
+{
+  "integrations": [
+    {
+      "name": "HELLO_WORLD_OIC_FSDR",
+      "version": "01.02.0000"
+    },
+    {
+      "name": "HELLO_SCHEDULED_INT",
+      "version": "01.00.0000"
+    },
+    {
+        "name": "HELLO_SCHEDULED_INT2",
+        "version": "01.00.0000"
+      }
+  ]
+}
