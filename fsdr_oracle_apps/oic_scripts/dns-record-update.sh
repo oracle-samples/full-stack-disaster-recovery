@@ -2,7 +2,7 @@
 
 ##############################################################################################################################
 #
-# Copyright (c) 2024, Oracle and/or its affiliates.
+# Copyright (c) 2023, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl/
 #
 # This script is used to update the DNS Zone record
@@ -14,7 +14,7 @@
 # Usage
 # ----
 # dns_record_update.sh <region ID>
-# 
+#
 # ----
 # How to add this script to Full Stack DR plans
 # ----
@@ -28,12 +28,12 @@
 region1=IAD
 region2=PHX
 #oic_instance_ocid_value
-oic_instance_host_region1=oic-iad-maasoftdev-ia.integration.ocp.oraclecloud.com
-oic_instance_host_region2=oic-phx-maasoftdev-px.integration.ocp.oraclecloud.com
+oic_instance_host_region1=xxxxxxxxxxx
+oic_instance_host_region2=xxxxxxxxxxx
 #DNS Zone Values
 dns_region=IAD
-zone_name=fsdrdemo.com
-domain=myoic.fsdrdemo.com
+zone_name=xxxxxxxxxxx
+domain=xxxxxxxxxxx
 r_type=CNAME
 ttl=30
 ##############################################################################################################################
@@ -57,5 +57,4 @@ else
         echo "Valid oci region code is not provided. Exiting......."
         exit
 fi
-oci dns record rrset update --profile $dns_region --zone-name-or-id $zone_name --domain $domain --rtype $r_type --items '[{"domain":"'${domain}'","rdata":"'${oic_instance_host}'","rtype":"'${r_type}'","ttl":'${ttl}'}]' --force 
-
+oci dns record rrset update --profile $dns_region --zone-name-or-id $zone_name --domain $domain --rtype $r_type --items '[{"domain":"'${domain}'","rdata":"'${oic_instance_host}'","rtype":"'${r_type}'","ttl":'${ttl}'}]' --force
