@@ -56,4 +56,4 @@ Note: If you have a moving instance added part of DR protection group, then plan
 
 ## Documentation
 
-You can find the online documentation for Oracle Full Stack Disaster Recovery Cloud Service at docs.oracle.com.
+You can find the online documentation for Oracle Full Stack Disaster Recovery at [docs.oracle.com](https://docs.oracle.com/en-us/iaas/disaster-recovery/doc/overview-disaster-recovery.html).
