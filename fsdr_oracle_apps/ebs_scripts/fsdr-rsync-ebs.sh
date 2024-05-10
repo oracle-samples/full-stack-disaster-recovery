@@ -1,7 +1,8 @@
 #!/usr/bin/bash
 #
-# Copyright (c) 2023, Oracle and/or its affiliates.
+# Copyright (c) 2024, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl/
+#
 #
 # This script disables and enables cron jobs for EBS rsync process
 # during a switchover orchestrated by Full Stack DR.
