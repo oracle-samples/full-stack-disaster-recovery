@@ -39,11 +39,11 @@ Note: Plan groups related to moving compute, volume groups and load balancer wil
 
 Let us assume your primary region is Newport and DR region is London.The following user-defined groups will be be created and necessary Oracle Hyperion EPM System will be used as part of Oracle Hyperion EPM System failover plan in the specific order.
 
-Custom scripts after Startup
-  - Script to Update Host File
-      host_switch_failback.ps1/sh
-  - Script to Start EPM Services
-      start_services.ps1/sh
+Custom scripts after Startup  
+  - Script to Update Host File  
+      host_switch_failback.ps1/sh  
+  - Script to Start EPM Services  
+      start_services.ps1/sh  
 
 Note: Plan groups related to moving compute, volume groups and load balancer will be generated as built-in plan groups.
 
