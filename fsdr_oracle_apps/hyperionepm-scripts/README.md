@@ -19,22 +19,23 @@ Scripts used for Full Stack DR switchover and failover.
 
 These scripts are provided for generic guidance. You can either use your own scripts or customize the scripts according to your corporate policy and security requirements.
 
-1. Switchover plan
+**1. Switchover plan**
 
 Let us assume your primary region is London and DR region is Newport.The following user-defined groups will be be created and necessary Oracle Hyperion EPM System will be used as part of Oracle Hyperion EPM System switchover plan in the specific order.
 
-Custom scripts before shutdown
-  - Script to Stop EPM Services
-      stop_services.ps1/sh
-Custom scripts after Startup
-  - Script to Update Host File
-      host_switch_failover.ps1/sh
-  - Script to Start EPM Services
-      start_services.ps1/sh
+Custom scripts before shutdown  
+  - Script to Stop EPM Services  
+      stop_services.ps1/sh  
+
+Custom scripts after Startup  
+  - Script to Update Host File  
+      host_switch_failover.ps1/sh  
+  - Script to Start EPM Services  
+      start_services.ps1/sh  
 
 Note: Plan groups related to moving compute, volume groups and load balancer will be generated as built-in plan groups.
 
-2. Failover plan
+**2. Failover plan**
 
 Let us assume your primary region is Newport and DR region is London.The following user-defined groups will be be created and necessary Oracle Hyperion EPM System will be used as part of Oracle Hyperion EPM System failover plan in the specific order.
 
