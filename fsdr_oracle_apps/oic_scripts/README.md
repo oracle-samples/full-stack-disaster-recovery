@@ -43,14 +43,14 @@ Note: If you have a moving instance added part of DR protection group, then plan
 
 Let us assume your primary region is Ashburn and DR region is Phoenix.The following user-defined groups will be be created and necessary Oracle Integration scripts will be used as part of Oracle Oracle Integration failover plan in the specific order.
 
-Activate relevant integrations at PHX
-     oic-integration-switch.sh activate PHX
-Update Schedule Parameters at PHX
-     oic-update-parameters.sh PHX
-Start scheduled integrations at PHX
-     oic-integration-schedule.sh start PHX
-Update DNS record at PHX
-     dns_record_update.sh PHX
+    Activate relevant integrations at PHX  
+        oic-integration-switch.sh activate PHX  
+    Update Schedule Parameters at PHX  
+        oic-update-parameters.sh PHX  
+    Start scheduled integrations at PHX  
+        oic-integration-schedule.sh start PHX  
+    Update DNS record at PHX  
+        dns_record_update.sh PHX  
 
 Note: If you have a moving instance added part of DR protection group, then plan groups related to compute and volume groups will be generated as built-in plan groups.
 
