@@ -1,0 +1,11 @@
+
+
+Failback:
+C:\scripts\stop_services.ps1
+C:\scripts\host_switch_failback.ps1
+C:\scripts\start_services.ps1
+
+Failover:
+C:\scripts\stop_services.ps1
+C:\scripts\host_switch_failover.ps1
+C:\scripts\start_services.ps1
