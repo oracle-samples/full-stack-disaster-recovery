@@ -50,3 +50,11 @@ Note: Plan groups related to moving compute, volume groups and load balancer wil
 ## Documentation:
 
 You can find the online documentation for Oracle Full Stack Disaster Recovery Cloud Service at docs.oracle.com.
+
+## License
+
+Copyright (c) 2024 Oracle and/or its affiliates.
+
+Released under the Universal Permissive License v1.0 as shown at
+<https://oss.oracle.com/licenses/upl/>.
+
