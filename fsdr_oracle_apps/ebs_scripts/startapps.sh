@@ -1,7 +1,3 @@
-#
-# Copyright (c) 2024, Oracle and/or its affiliates.
-# Licensed under the Universal Permissive License (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl/
-#
 export SECRET_APPS_OCID=$1
 export SECRET_APPS=$(oci secrets secret-bundle get --raw-output --secret-id $SECRET_APPS_OCID --query "data.\"secret-bundle-content\".content" | base64 -d)
 echo $SECRET_APPS
