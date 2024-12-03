@@ -119,3 +119,4 @@ except:
   sys.exit(1)
 
 os.remove(regions_file)
+print("Copy Last Backup Complete : " + oci_src_bkp_cp_details.source_backup_id)

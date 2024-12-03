@@ -17,7 +17,8 @@ parser = argparse.ArgumentParser(description='Update a DNS record for the MDS En
 parser.add_argument("mds_label", help="System Label of the MySQL to get the Endpoint IP", type=str)
 parser.add_argument("zone_name", help="The DNS Zone Name", type=str)
 parser.add_argument("domain_name", help="The DNS record to be updated", type=str)
-parser.add_argument("remote_region", help="Remote OCI Region for DNS update as well", type=str)
+parser.add_argument("remote_region", help="Remote OCI Region (Old Primary)", type=str)
+parser.add_argument("--remote", action='store_true', help="Update DNS in the Remote Region as well (Only for Switchover Scenario)")
 args = parser.parse_args()
 oci_src_db_system_label = args.mds_label
 oci_zone_name = args.zone_name
@@ -106,12 +107,13 @@ oci_src_dns_client.update_domain_records(
     view_id=src_view_id
 )
 
-oci_dst_dns_client = oci.dns.DnsClient(config = oci_dst_config, signer = oci_signer)
-oci_dst_dns_client.update_domain_records(
-    oci_zone_name,
-    oci_domain_name,
-    oci.dns.models.UpdateDomainRecordsDetails(items=update_domain_records),
-    view_id=dst_view_id
-)
+if args.remote is True:
+  oci_dst_dns_client = oci.dns.DnsClient(config = oci_dst_config, signer = oci_signer)
+  oci_dst_dns_client.update_domain_records(
+      oci_zone_name,
+      oci_domain_name,
+      oci.dns.models.UpdateDomainRecordsDetails(items=update_domain_records),
+      view_id=dst_view_id
+  )
 
 os.remove(regions_file)
