@@ -19,7 +19,9 @@ parser.add_argument("db_source_label", help="System Label of the Source MySQL sy
 parser.add_argument("dest_subnet_id", help="Destination Subnet OCID", type=str)
 parser.add_argument("dest_ad_number", nargs='?', const=1, default=1, help="Destination Availability Domain Number", type=int)
 parser.add_argument("--config", action='store_true', help="Update config file with the new OCID of the restored MDS")
-parser.add_argument("--terminate", action='store_true', help="Terminate the Source MDS after a Restore (Switchover scenario)")
+group = parser.add_mutually_exclusive_group()
+group.add_argument("--switch", action='store_true', help="TAG the Source MySQL DB to be terminated after a Restore (Switchover scenario)")
+group.add_argument("--drill", action='store_true', help="TAG the Target MySQL DB to be terminated after a Restore (Dry Run scenario)")
 args = parser.parse_args()
 oci_src_db_system_label = args.db_source_label
 oci_dst_subnet_id = args.dest_subnet_id
@@ -133,11 +135,17 @@ except:
   print("Error Restoring the Backup or No Backup found te be restored for MDS " + oci_src_db_system_id + " in region " + oci_dst_region + "!.")
   sys.exit(1)
 
-if args.terminate is True:
-  print("Terminating Source DB System...")
-  oci_src_db_sys_dbs_terminate = oci_src_db_sys_clt.delete_db_system(oci_src_db_system_id)
-  oci_src_db_sys_dbs_get_rsp = oci_src_db_sys_clt.get_db_system(oci_src_db_system_id)
-  oci_src_db_sys_dbs_wait_terminate = oci.wait_until(oci_src_db_sys_clt, oci_src_db_sys_dbs_get_rsp, 'lifecycle_state', 'DELETED')
+if args.switch is True:
+  source_file = current_directory + "/source"
+  source = open(source_file,"w")
+  source.write(oci_src_db_system_id)
+  source.close()
+
+if args.drill is True:
+  drill_file = current_directory + "/drill"
+  drill = open(drill_file,"w")
+  drill.write(oci_dst_db_create_dbs_id)
+  drill.close()
 
 if args.config is True:
   print("Updating config file...")
@@ -152,3 +160,4 @@ if args.config is True:
     file.write(data)
 
 os.remove(regions_file)
+print("Restoring Last Backup id Complete : " + oci_dst_last_bkp_id)

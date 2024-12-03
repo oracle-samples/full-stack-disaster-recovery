@@ -88,3 +88,4 @@ except:
   sys.exit(1)
 
 os.remove(regions_file)
+print("Backup for DB system Complete : " + oci_src_db_sys_details.data.display_name)
