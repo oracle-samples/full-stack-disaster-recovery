@@ -17,11 +17,18 @@ This script copies a MySQL Database backup to a remote OCI region, facilitating 
 **Usage:**
 
 ```bash  
-mds_copy_bkp.py db_source_label dest_region 
+mds_copy_bkp.py db_source_label 
 
 positional arguments:
-  db_source_label  System Label of the Source MySQL system to be copied. System Label from the config file (config.py).
-  dest_region      Destination OCI Region
+  db_source_label  System Label of the Source MySQL system to be copied. System Label from the config file (config.csv).
+```
+
+**Dependencies:**
+
+This script requires the pandas module
+
+```bash
+pip install pandas
 ```
 
 ### 2. **`mds_create_bkp.py`**
@@ -36,14 +43,25 @@ This script creates a manual backup of the MySQL database, ensuring data is secu
 mds_create_bkp.py db_source_label 
 
 positional arguments:
-  db_source_label  System Label of the Source MySQL system. System Label from the config file (config.py).
+  db_source_label  System Label of the Source MySQL system. System Label from the config file (config.csv).
+
+optional arguments:
+  --stop           Stop the Source MySQL DB before the Backup (Switchover scenario ONLY)
+```
+
+**Dependencies:**
+
+This script requires the pandas module
+
+```bash
+pip install pandas
 ```
 
 ### 3. **`mds_list_config.py`**
 
 **Description:**
 
-This script lists the MySQL DB Systems specified in the configuration file (config.py) for streamlined access and ease of management.
+This script lists the MySQL DB Systems specified in the configuration file (config.csv) for streamlined access and ease of management.
 
 **Usage:**
 
@@ -53,10 +71,11 @@ mds_list_config.py
 
 **Dependencies:**
 
-This script requires the tabulate module
+This script requires pandas and tabulate module
 
 ```bash
 pip install tabulate
+pip install pandas
 ```
 
 ### 4. **`mds_restore_bkp.py`**
@@ -68,11 +87,10 @@ This script restores a MySQL database backup to a different OCI region, enabling
 **Usage:**
 
 ```bash  
-mds_restore_bkp.py db_source_label dest_subnet_id [dest_ad_number] [--config] [--switch | --drill]
+mds_restore_bkp.py db_source_label [dest_ad_number] [--config] [--switch | --drill]
 
 positional arguments:
-  db_source_label  System Label of the Source MySQL system to be restored. System Label from the config file. (config.py)
-  dest_subnet_id   Destination Subnet OCID
+  db_source_label  System Label of the Source MySQL system to be restored. System Label from the config file. (config.csv)
   dest_ad_number   Destination Availability Domain Number (Default value 1 for AD1)
 
 optional arguments:
@@ -81,46 +99,74 @@ optional arguments:
   --drill          TAG the Target MySQL DB to be terminated after a Restore (Dry Run scenario)
 ```
 
+**Dependencies:**
+
+This script requires the pandas module
+
+```bash
+pip install pandas
+```
+
 ### 5. **`mds_terminate_db.py`**
 
 **Description:**
 
-This script Terminate a MySQL Database System in the context of a Disater Recovery (Switchover of a Dry Run).
+This script Terminate a MySQL Database System in the context of a Disater Recovery (Switchover or a Dry Run).
+
+The MySQL database to be terminated is identified in the config.csv file through the "TO TERMINATE" column, which is populated during the restore phase.
+
+If the --drill option is specified during the restore phase, the MySQL database to be terminated (in the dry run) will be the same database that was just restored.
+
+If the --switch option is specified during the restore phase, the MySQL database to be terminated (during the switchover) will be the Source DB.
 
 **Usage:**
 
 ```bash  
-mds_terminate_db.py [--source | --drill]
+mds_terminate_db.py db_source_label
 
-optional arguments:
-  --source    Terminate Source MySQL DB after a Restore (Switchover scenario)
-  --drill     Terminate Target MySQL DB after a Restore (Dry Run scenario)
+positional arguments:
+  db_source_label  System Label of the MySQL DB system. System Label from the config file
+```
+
+**Dependencies:**
+
+This script requires the pandas module
+
+```bash
+pip install pandas
 ```
 
 ### 6. **`mds_update_dns.py`**
 
 **Description:**
 
-This script updates the DNS record for the MySQL Database System endpoint within the OCI DNS Private Zone in both regions. The DNS view OCID should be specified in the config.py file for seamless execution.
+This script updates the DNS record for the MySQL Database System endpoint within the OCI DNS Private Zone in both regions. The DNS view OCID should be specified in the config.csv file for seamless execution.
 
 **Usage:**
 
 ```bash  
-mds_update_dns.py mds_label zone_name domain_name remote_region [--remote]
+mds_update_dns.py mds_label zone_name domain_name [--remote]
 
 positional arguments:
   mds_label      System Label of the MySQL to get the Endpoint IP
   zone_name      The DNS Zone Name
   domain_name    The DNS record to be updated
-  remote_region  Remote OCI Region (Old Primary)
 
 optional arguments:
   --remote       Update DNS in the Remote Region as well (Only for Switchover Scenario)
 ```
 
-## Configuration file (config.py)
+**Dependencies:**
 
-This file contains the OCIDs for the MySQL Database System and the compartment where the MySQL System resides. Each entry is referenced with a descriptive label, which is consistently used across all the previous scripts for simplicity and clarity.
+This script requires the pandas module
+
+```bash
+pip install pandas
+```
+
+## Configuration file (config.csv)
+
+This file contains the OCIDs for the MySQL Database System, the Subnet OCIDs in both regions and the compartment where the MySQL System resides. Each entry is referenced with a descriptive label, which is consistently used across all the previous scripts for simplicity and clarity.
 
 It also includes the Private DNS View OCIDs for both OCI regions, which are utilized by the mds_update_dns.py script to update DNS records seamlessly.
 
