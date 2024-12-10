@@ -9,42 +9,46 @@ import oci
 import argparse
 import os
 import sys
+import csv
 import time
-import config
 
 # Parsing Arguments
 parser = argparse.ArgumentParser(description='Copy MySQL DB backup to another OCI region')
 parser.add_argument("db_source_label", help="System Label of the Source MySQL system to be copied. System Label from the config file", type=str)
-parser.add_argument("dest_region", help="Destination OCI Region", type=str)
 args = parser.parse_args()
 oci_src_db_system_label = args.db_source_label
-oci_dst_region = args.dest_region
 
 current_directory = os.path.dirname(os.path.abspath(sys.argv[0]))
 
 # Finding system details from the config file
-mds_data = config.mdsdata
-mds_head = config.mdshead
+config_file_name = current_directory + "/config.csv"
 
-i = len(mds_data)
+# Read the data from the config file
+with open(config_file_name, mode='r', newline='') as file:
+  reader = csv.reader(file)
+  rows = [row for row in reader]
 
-for x in range(i):
-  if mds_data[x][0] == oci_src_db_system_label:
-    oci_src_db_system_id = mds_data[x][1]
-    oci_src_bkp_comp_id = mds_data[x][2]
-    oci_dst_bkp_comp_id = mds_data[x][2]
+# Search for the MySQL Label
+for row in rows:
+  if row[0] == oci_src_db_system_label:
+    oci_src_db_system_id = row[1]
+    oci_src_bkp_comp_id = row[2]
+    oci_dst_bkp_comp_id = row[2]
+    oci_dst_region = row[4].split('.')[3]
     break
 
 try:
   oci_src_db_system_id
 except:
-  print("MDS Label not found! Check the config file.")
+  print("")
+  print(time.strftime("%Y-%m-%d %H-%M-%S") + " FAILURE - MDS Label not found! Check the config file.\n")
   sys.exit(1)
 
 try:
   oci_src_region = oci_src_db_system_id.split('.')[3]
 except:
-  print("MDS OCID : Bad Format!")
+  print("")
+  print(time.strftime("%Y-%m-%d %H-%M-%S") + " FAILURE - MDS OCID : Bad Format!\n")
   sys.exit(1)
 
 # Preparing regions file for source and destination
@@ -66,7 +70,8 @@ try:
   oci_src_db_sys_details = oci_src_db_sys_clt.get_db_system(oci_src_db_system_id)
 except:
   os.remove(regions_file)
-  print("Error retrieving DB system details! Check the config file.")
+  print("")
+  print(time.strftime("%Y-%m-%d %H-%M-%S") + " FAILURE - Error retrieving DB system details! Check the config file.\n")
   sys.exit(1)
 
 try:
@@ -100,23 +105,26 @@ try:
       oci_dst_db_bkp_copy = oci_dst_db_bkp_clt.copy_backup(copy_backup_details = oci_src_bkp_cp_details)
       oci_dst_db_bkp_copy_id = oci_dst_db_bkp_copy.data.id
       oci_dst_db_bkp_get_rsp = oci_dst_db_bkp_clt.get_backup(oci_dst_db_bkp_copy_id)
-
-      print("Copying Last Backup : " + oci_src_bkp_cp_details.source_backup_id)
+      print("")
+      print(time.strftime("%Y-%m-%d %H-%M-%S") + " INFO - Copy Last Backup in progress : " + oci_src_last_bkp_id)
 
       oci_dst_db_bkp_copy_wait_active = oci.wait_until(oci_dst_db_bkp_clt, oci_dst_db_bkp_get_rsp, 'lifecycle_state', 'ACTIVE')
     else:
-      print("Last Backup " + oci_src_last_bkp_id + " already copied!")
+      print("")
+      print(time.strftime("%Y-%m-%d %H-%M-%S") + " INFO - Last Backup already copied : " + oci_src_last_bkp_id)
   except:
-    print("No Previous Backup found!")
+    print("")
+    print(time.strftime("%Y-%m-%d %H-%M-%S") + " INFO - No Previous Backup found!")
     oci_dst_db_bkp_copy = oci_dst_db_bkp_clt.copy_backup(copy_backup_details = oci_src_bkp_cp_details)
     oci_dst_db_bkp_copy_id = oci_dst_db_bkp_copy.data.id
     oci_dst_db_bkp_get_rsp = oci_dst_db_bkp_clt.get_backup(oci_dst_db_bkp_copy_id)
-    print("Copying Last Backup : " + oci_src_bkp_cp_details.source_backup_id)
+    print(time.strftime("%Y-%m-%d %H-%M-%S") + " INFO - Copy Last Backup in progress : " + oci_src_last_bkp_id)
     oci_dst_db_bkp_copy_wait_active = oci.wait_until(oci_dst_db_bkp_clt, oci_dst_db_bkp_get_rsp, 'lifecycle_state', 'ACTIVE')
 except:
   os.remove(regions_file)
-  print("Error copying backup to the remote region!.")
+  print("")
+  print(time.strftime("%Y-%m-%d %H-%M-%S") + " FAILURE - Error copying backup remote region : " + oci_dst_region + "\n")
   sys.exit(1)
 
 os.remove(regions_file)
-print("Copy Last Backup Complete : " + oci_src_bkp_cp_details.source_backup_id)
+print(time.strftime("%Y-%m-%d %H-%M-%S") + " INFO - Copy Last Backup complete : " + oci_src_last_bkp_id + "\n")

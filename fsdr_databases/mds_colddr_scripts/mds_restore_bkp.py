@@ -1,4 +1,4 @@
-#!/usr/bin/python -x
+#!/usr/bin/python
 #
 # Copyright (c) 2024, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
@@ -10,60 +10,70 @@ import argparse
 import os
 import subprocess
 import sys
+import csv
 import time
-import config
 
 # Parsing Arguments
 parser = argparse.ArgumentParser(description='Restore MySQL DB backup to another OCI region')
 parser.add_argument("db_source_label", help="System Label of the Source MySQL system to be restored. System Label from the config file", type=str)
-parser.add_argument("dest_subnet_id", help="Destination Subnet OCID", type=str)
 parser.add_argument("dest_ad_number", nargs='?', const=1, default=1, help="Destination Availability Domain Number", type=int)
-parser.add_argument("--config", action='store_true', help="Update config file with the new OCID of the restored MDS")
+parser.add_argument("--config", action='store_true', help="Update config file with the new OCID of the restored MySQL DB System")
 group = parser.add_mutually_exclusive_group()
 group.add_argument("--switch", action='store_true', help="TAG the Source MySQL DB to be terminated after a Restore (Switchover scenario)")
 group.add_argument("--drill", action='store_true', help="TAG the Target MySQL DB to be terminated after a Restore (Dry Run scenario)")
 args = parser.parse_args()
 oci_src_db_system_label = args.db_source_label
-oci_dst_subnet_id = args.dest_subnet_id
 oci_dst_ad_number = args.dest_ad_number
 
-#current_directory = os.getcwd()
 current_directory = os.path.dirname(os.path.abspath(sys.argv[0]))
-config_file = current_directory + "/config.py"
-
-if oci_dst_ad_number not in [1, 2, 3]:
-  print("Wrong AD number provided!.")
-  sys.exit(1)
 
 # Finding system details from the config file
-mds_data = config.mdsdata
-mds_head = config.mdshead
+config_file_name = current_directory + "/config.csv"
 
-i = len(mds_data)
+# Read the data from the config file 
+with open(config_file_name, mode='r', newline='') as file:
+  reader = csv.reader(file)
+  rows = [row for row in reader]
 
-for x in range(i):
-  if mds_data[x][0] == oci_src_db_system_label:
-    oci_src_db_system_id=mds_data[x][1]
-    oci_dst_db_comp_id = mds_data[x][2]
-    oci_dst_bkp_comp_id = mds_data[x][2]
+# Search for the MySQL Label
+for row in rows:
+  if row[0] == oci_src_db_system_label:
+    oci_src_db_system_id = row[1]
+    oci_dst_db_comp_id = row[2]
+    oci_dst_bkp_comp_id = row[2]
+    oci_src_subnet_id = row[3]
+    oci_dst_subnet_id = row[4]
     break
+
+if args.switch and not args.config:
+    parser.error('--config argument is required with --switch')
+if args.drill and not args.config:
+    parser.error('--config argument is required with --drill')
+
+if oci_dst_ad_number not in [1, 2, 3]:
+  print("")
+  print(time.strftime("%Y-%m-%d %H-%M-%S") + " FAILURE - Wrong AD number provided!\n")
+  sys.exit(1)
 
 try:
   oci_src_db_system_id
 except:
-  print("MDS Label not found! Check the config file.")
+  print("")
+  print(time.strftime("%Y-%m-%d %H-%M-%S") + " FAILURE - MySQL DB System Label not found! Check the config file.\n")
   sys.exit(1)
 
 try:
   oci_src_region = oci_src_db_system_id.split('.')[3]
 except:
-  print("MDS OCID : Bad Format!")
+  print("")
+  print(time.strftime("%Y-%m-%d %H-%M-%S") + " FAILURE - MySQL DB System OCID : Bad Format!\n")
   sys.exit(1)
 
 try:
   oci_dst_region = oci_dst_subnet_id.split('.')[3]
 except:
-  print("Destination Subnet : Bad Format!")
+  print("")
+  print(time.strftime("%Y-%m-%d %H-%M-%S") + " FAILURE - Destination Subnet : Bad Format!\n")
   sys.exit(1)
 
 # Preparing regions file for source and destination
@@ -84,7 +94,8 @@ try:
   oci_dst_ad_list = oci_dst_identity_client.list_availability_domains(compartment_id=oci_dst_db_comp_id)
   oci_dst_ad = oci_dst_ad_list.data[oci_dst_ad_number-1].name
 except:
-  print("Error geting the AD details in the destintion Region!")
+  print("")
+  print(time.strftime("%Y-%m-%d %H-%M-%S") + " FAILURE - Error geting the AD details in the destintion Region!\n")
   sys.exit(1)
 
 try:
@@ -102,7 +113,8 @@ try:
     else:
       add_heat=0
   except:
-    print("Unable to get if source DB has HeatWave enabled..")
+    print("")
+    print(time.strftime("%Y-%m-%d %H-%M-%S") + " FAILURE - Unable to get if source DB has HeatWave enabled.\n")
     add_heat=0
 
   # Get a list of DB System backups
@@ -123,7 +135,8 @@ try:
   oci_dst_db_create_dbs_id = oci_dst_db_create_dbs.data.id
   oci_dst_db_create_dbs_get_rsp = oci_dst_db_restore_clt.get_db_system(oci_dst_db_create_dbs_id)
 
-  print("Restoring Last Backup id : " + oci_dst_last_bkp_id)
+  print("")
+  print(time.strftime("%Y-%m-%d %H-%M-%S") + " INFO - Restore Last Backup in progress : " + oci_dst_last_bkp_id)
 
   oci_dst_db_create_dbs_wait_active = oci.wait_until(oci_dst_db_restore_clt, oci_dst_db_create_dbs_get_rsp, 'lifecycle_state', 'ACTIVE')
 
@@ -132,32 +145,40 @@ try:
 
 except:
   os.remove(regions_file)
-  print("Error Restoring the Backup or No Backup found te be restored for MDS " + oci_src_db_system_id + " in region " + oci_dst_region + "!.")
+  print(time.strftime("%Y-%m-%d %H-%M-%S") + " FAILURE - Error Restoring the Backup or No Backup found te be restored for MySQL DB System " + oci_src_db_system_id + " in region " + oci_dst_region + "\n")
   sys.exit(1)
 
-if args.switch is True:
-  source_file = current_directory + "/source"
-  source = open(source_file,"w")
-  source.write(oci_src_db_system_id)
-  source.close()
-
-if args.drill is True:
-  drill_file = current_directory + "/drill"
-  drill = open(drill_file,"w")
-  drill.write(oci_dst_db_create_dbs_id)
-  drill.close()
-
 if args.config is True:
-  print("Updating config file...")
-  old_mds_ocid = oci_src_db_system_id
-  new_mds_ocid = oci_dst_db_create_dbs_id
+  print(time.strftime("%Y-%m-%d %H-%M-%S") + " INFO - Updating config file...")
+  with open(config_file_name, mode='r', newline='') as file:
+    reader = csv.reader(file)
+    rows = [row for row in reader]
 
-  with open(config_file, 'r') as file:
-    data = file.read()
-    data = data.replace(old_mds_ocid, new_mds_ocid)
+# Modify the specific value 
+  for row in rows:
+    if row[0] == oci_src_db_system_label:
+      new_primary_subnet = row[4]
+      row[4] = row[3]
+      row[3] = new_primary_subnet
+      new_primary_dns_view = row[6]
+      row[6] = row[5]
+      row[5] = new_primary_dns_view
+      break
 
-  with open(config_file, 'w') as file:
-    file.write(data)
+  if args.switch is True:
+    old_mds_id = row[1]
+    row[1] = oci_dst_db_create_dbs_id
+    row[7] = old_mds_id
+  elif args.drill is True:
+    row[1] = oci_dst_db_create_dbs_id
+    row[7] = oci_dst_db_create_dbs_id
+  else:
+    row[1] = oci_dst_db_create_dbs_id
+
+# Write the modified data back to the file 
+  with open(config_file_name, mode='w', newline='') as file:
+    writer = csv.writer(file)
+    writer.writerows(rows)
 
 os.remove(regions_file)
-print("Restoring Last Backup id Complete : " + oci_dst_last_bkp_id)
+print(time.strftime("%Y-%m-%d %H-%M-%S") + " INFO - Restore Last Backup MySQL DB System complete: " + oci_dst_db_create_dbs_id + "\n")
