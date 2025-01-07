@@ -187,7 +187,9 @@ It also includes the Private DNS View OCIDs for both OCI regions, which are util
 
 The first line in this file contains essential headers utilized by various scripts.
 
-Please do not modify the first line. Instead, add the necessary information starting from the second line onward by replacing values between <>.
+Please do not modify the first line. Instead, add the necessary information starting from the second line onward by replacing values between the angle brackets (<>), and do not keep the angle brackets. You can have multiple DB systems in the config file (one per line). Make sure that the MYSQL_DB_LABEL (first column) is unique.
+
+Use the `mds_list_config.py` script to detect any duplicate values.
 
 ## License
 
