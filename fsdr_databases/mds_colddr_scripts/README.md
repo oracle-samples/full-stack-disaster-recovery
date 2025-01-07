@@ -17,10 +17,14 @@ This script copies a MySQL Database backup to a remote OCI region, facilitating 
 **Usage:**
 
 ```bash  
-mds_copy_bkp.py db_source_label 
+mds_copy_bkp.py db_source_label [-t TIMEOUT]
 
 positional arguments:
   db_source_label  System Label of the Source MySQL system to be copied. System Label from the config file (config.csv).
+
+optional arguments:
+  -t TIMEOUT, --timeout TIMEOUT
+                        Specify the maximum time to wait, in seconds. Defaults to 1200 seconds.
 ```
 
 **Dependencies:**
@@ -40,13 +44,15 @@ This script creates a manual backup of the MySQL database, ensuring data is secu
 **Usage:**
 
 ```bash  
-mds_create_bkp.py db_source_label 
+mds_create_bkp.py db_source_label [--stop] [-t TIMEOUT]
 
 positional arguments:
   db_source_label  System Label of the Source MySQL system. System Label from the config file (config.csv).
 
 optional arguments:
   --stop           Stop the Source MySQL DB before the Backup (Switchover scenario ONLY)
+  -t TIMEOUT, --timeout TIMEOUT
+                        Specify the maximum time to wait, in seconds. Defaults to 1200 seconds.
 ```
 
 **Dependencies:**
@@ -87,7 +93,7 @@ This script restores a MySQL database backup to a different OCI region, enabling
 **Usage:**
 
 ```bash  
-mds_restore_bkp.py db_source_label [dest_ad_number] [--config] [--switch | --drill]
+mds_restore_bkp.py db_source_label [dest_ad_number] [--config] [--switch | --drill] [-t TIMEOUT]
 
 positional arguments:
   db_source_label  System Label of the Source MySQL system to be restored. System Label from the config file. (config.csv)
@@ -97,6 +103,8 @@ optional arguments:
   --config         Update config file with the new OCID of the restored MDS
   --switch         TAG the Source MySQL DB to be terminated after a Restore (Switchover scenario)
   --drill          TAG the Target MySQL DB to be terminated after a Restore (Dry Run scenario)
+  -t TIMEOUT, --timeout TIMEOUT
+                        Specify the maximum time to wait, in seconds. Defaults to 1200 seconds.
 ```
 
 **Dependencies:**
@@ -122,10 +130,16 @@ If the --switch option is specified during the restore phase, the MySQL database
 **Usage:**
 
 ```bash  
-mds_terminate_db.py db_source_label
+mds_terminate_db.py db_source_label [--force] [--skip] [-t TIMEOUT]
 
 positional arguments:
   db_source_label  System Label of the MySQL DB system. System Label from the config file
+
+optional arguments:
+  --force               Force termination even if delete protection is enabled.
+  --skip                Skip final backup before deletion.
+  -t TIMEOUT, --timeout TIMEOUT
+                        Specify the maximum time to wait, in seconds. Defaults to 1200 seconds.
 ```
 
 **Dependencies:**
@@ -145,7 +159,7 @@ This script updates the DNS record for the MySQL Database System endpoint within
 **Usage:**
 
 ```bash  
-mds_update_dns.py mds_label zone_name domain_name [--remote]
+mds_update_dns.py mds_label zone_name domain_name [--switch | --drill]
 
 positional arguments:
   mds_label      System Label of the MySQL to get the Endpoint IP
@@ -153,7 +167,8 @@ positional arguments:
   domain_name    The DNS record to be updated
 
 optional arguments:
-  --remote       Update DNS in the Remote Region as well (Only for Switchover Scenario)
+  --switch     Update DNS in the Source and Remote Region as well (Only for Switchover Scenario)
+  --drill      Update DNS in the Remote Region Only (Only for Dry Run Scenario)
 ```
 
 **Dependencies:**
@@ -169,6 +184,10 @@ pip install pandas
 This file contains the OCIDs for the MySQL Database System, the Subnet OCIDs in both regions and the compartment where the MySQL System resides. Each entry is referenced with a descriptive label, which is consistently used across all the previous scripts for simplicity and clarity.
 
 It also includes the Private DNS View OCIDs for both OCI regions, which are utilized by the mds_update_dns.py script to update DNS records seamlessly.
+
+The first line in this file contains essential headers utilized by various scripts.
+
+Please do not modify the first line. Instead, add the necessary information starting from the second line onward by replacing values between <>.
 
 ## License
 

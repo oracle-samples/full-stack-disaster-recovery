@@ -12,95 +12,116 @@ import subprocess
 import sys
 import csv
 import time
+from datetime import timezone
+import datetime
+import pandas
 
-# Parsing Arguments
-parser = argparse.ArgumentParser(description='Terminate MySQL DB')
-parser.add_argument("db_source_label", help="System Label of the MySQL DB system. System Label from the config file", type=str)
-#group = parser.add_mutually_exclusive_group()
-#group.add_argument("--source", action='store_true', help="Terminate Source MySQL DB after a Restore (Switchover scenario)")
-#group.add_argument("--drill", action='store_true', help="Terminate Target MySQL DB after a Restore (Dry Run scenario)")
+# Argument Parsing
+# This section parses the command-line arguments for the script.
+parser = argparse.ArgumentParser(description='Terminate a MySQL DB system.')
+parser.add_argument("db_source_label", help="System Label of the MySQL DB system from the config file.", type=str)
+parser.add_argument("--force", action='store_true', help="Force termination even if delete protection is enabled.")
+parser.add_argument("--skip", action='store_true', help="Skip final backup before deletion.")
+parser.add_argument("-t", "--timeout", help = "Specify the maximum time to wait, in seconds. Defaults to 1200 seconds.", type = int, default = 1200)
 args = parser.parse_args()
+
+# Extract arguments
 oci_src_db_system_label = args.db_source_label
+oci_max_wait_seconds = args.timeout
 
-#if not (args.source or args.drill):
-#  parser.error('No action requested, add --source or --drill')
-
+# Get the current script directory
 current_directory = os.path.dirname(os.path.abspath(sys.argv[0]))
 
-# Finding system details from the config file
+# Config file containing system details
 config_file_name = current_directory + "/config.csv"
 
 # Read the data from the config file
+# The config file is expected to have headers and contain details about various MySQL DB systems.
 with open(config_file_name, mode='r', newline='') as file:
-  reader = csv.reader(file)
-  rows = [row for row in reader]
+    reader = csv.reader(file)
+    next(reader, None)  # Skip the headers
+    rows = [row for row in reader]
 
-# Search for the MySQL Label
+# Use pandas to search for the MySQL DB label in the config file
+df = pandas.read_csv(config_file_name, header=0)
 for row in rows:
-  if row[0] == oci_src_db_system_label:
-    to_terminate_ocid = row[7]
+    if row[df.columns.get_loc("MYSQL_DB_LABEL")] == oci_src_db_system_label:
+        to_terminate_ocid = row[df.columns.get_loc("MYSQL_DB_TO_TERMINATE")]
+        oci_src_region = row[df.columns.get_loc("STANDBY_REGION")]
+        break
 
-try:
-  to_terminate_ocid
-except:
-  print("")
-  print(time.strftime("%Y-%m-%d %H-%M-%S") + " FAILIRE - MySQL OCID not found in file the config file.\n")
-  sys.exit(1)
+if not to_terminate_ocid:
+    print(f"\n{datetime.datetime.now(timezone.utc)} FAILURE - MySQL OCID not found in the config file.\n")
+    sys.exit(1)
 
-try:
-  oci_src_region = to_terminate_ocid.split('.')[3]
-except:
-  print("")
-  print(time.strftime("%Y-%m-%d %H-%M-%S") + " FAILIRE - MDS OCID : Bad Format!\n")
-  sys.exit(1)
+# Prepare the regions file for OCI SDK configuration
+regions_file = current_directory + "/regions_terminate_db." + time.strftime("%Y%m%d%H%M%S")
+with open(regions_file, "w") as regions:
+    regions.write("[SOURCE]\n")
+    regions.write(f"region = {oci_src_region}\n")
 
-# Preparing regions file for source and destination
-regions_file=current_directory + "/regions_terminate." + time.strftime("%Y%m%d%H%M%S")
-regions = open(regions_file,"w")
-regions.write("[SOURCE]\n")
-regions.write("region = " + oci_src_region + "\n")
-regions.close()
-
+# Set up OCI signer and configuration
 oci_signer = oci.auth.signers.InstancePrincipalsSecurityTokenSigner()
-oci_src_config = oci.config.from_file(file_location=regions_file,profile_name="SOURCE")
+oci_src_config = oci.config.from_file(file_location=regions_file, profile_name="SOURCE")
 
 try:
-  # Get DB system details
-  oci_src_db_sys_clt = oci.mysql.DbSystemClient(config = oci_src_config, signer = oci_signer)
-  oci_src_db_sys_details = oci_src_db_sys_clt.get_db_system(to_terminate_ocid)
-except:
-  os.remove(regions_file)
-  print("")
-  print(time.strftime("%Y-%m-%d %H-%M-%S") + " FAILIRE - Error retrieving DB system details " + to_terminate_ocid)
-  print(time.strftime("%Y-%m-%d %H-%M-%S") + " FAILIRE - Check the provided arguments...\n")
-  sys.exit(1)
+    # Initialize the MySQL DB system client
+    oci_src_db_sys_clt = oci.mysql.DbSystemClient(config=oci_src_config, signer=oci_signer)
+
+    # Retrieve details of the DB system to be terminated
+    oci_src_db_sys_details = oci_src_db_sys_clt.get_db_system(to_terminate_ocid)
+except Exception as e:
+    print(f"\n{datetime.datetime.now(timezone.utc)} ERROR: {e}")
+    os.remove(regions_file)
+    print(f"\n{datetime.datetime.now(timezone.utc)} FAILURE - Error retrieving DB system details for OCID {to_terminate_ocid}")
+    sys.exit(1)
+    
+# Handle force termination (disable delete protection if enabled)
+if args.force:
+    if oci_src_db_sys_details.data.deletion_policy.is_delete_protected:
+        oci_src_deletion_policy_details = oci.mysql.models.UpdateDeletionPolicyDetails(is_delete_protected=False)
+        oci_src_db_sys_update_details = oci.mysql.models.UpdateDbSystemDetails(deletion_policy=oci_src_deletion_policy_details)
+        oci_src_db_sys_clt.update_db_system(db_system_id=to_terminate_ocid, update_db_system_details=oci_src_db_sys_update_details)
+
+# Handle skipping the final backup
+if args.skip:
+    if oci_src_db_sys_details.data.deletion_policy.is_delete_protected:
+        oci_src_deletion_policy_details = oci.mysql.models.UpdateDeletionPolicyDetails(final_backup="SKIP_FINAL_BACKUP")
+        oci_src_db_sys_update_details = oci.mysql.models.UpdateDbSystemDetails(deletion_policy=oci_src_deletion_policy_details)
+        oci_src_db_sys_clt.update_db_system(db_system_id=to_terminate_ocid, update_db_system_details=oci_src_db_sys_update_details)
 
 try:
-  print("")
-  print(time.strftime("%Y-%m-%d %H-%M-%S") + " INFO - Terminating MySQL DB System in progress : " + to_terminate_ocid)
-  oci_src_db_sys_dbs_terminate = oci_src_db_sys_clt.delete_db_system(to_terminate_ocid)
-  oci_src_db_sys_dbs_get_rsp = oci_src_db_sys_clt.get_db_system(to_terminate_ocid)
-  oci_src_db_sys_dbs_wait_terminate = oci.wait_until(oci_src_db_sys_clt, oci_src_db_sys_dbs_get_rsp, 'lifecycle_state', 'DELETED')
-except:
-  os.remove(regions_file)
-  print(time.strftime("%Y-%m-%d %H-%M-%S") + " FAILIRE - Error Terminating MySQL DB System : " +  to_terminate_ocid + "\n")
-  sys.exit(1)
+    # Initiate the termination of the MySQL DB system
+    print(f"\n{datetime.datetime.now(timezone.utc)} INFO - Terminating MySQL DB System: {to_terminate_ocid}")
+    oci_src_db_sys_clt.delete_db_system(to_terminate_ocid)
 
-print(time.strftime("%Y-%m-%d %H-%M-%S") + " INFO - Updating config file...")
+    # Wait for the termination process to complete
+    oci_src_db_sys_dbs_get_rsp = oci_src_db_sys_clt.get_db_system(to_terminate_ocid)
+    oci.wait_until(oci_src_db_sys_clt, oci_src_db_sys_dbs_get_rsp, 'lifecycle_state', 'DELETED', max_wait_seconds=oci_max_wait_seconds)
+except Exception as e:
+    print(f"\n{datetime.datetime.now(timezone.utc)} ERROR: {e}")
+    os.remove(regions_file)
+    print(f"\n{datetime.datetime.now(timezone.utc)} FAILURE - Error terminating MySQL DB System: {to_terminate_ocid}")
+    sys.exit(1)
+
+# Update the configuration file to reflect the deletion - Reopen because Headers were excluded
+print(f"{datetime.datetime.now(timezone.utc)} INFO - Updating configuration file...")
 with open(config_file_name, mode='r', newline='') as file:
-  reader = csv.reader(file)
-  rows = [row for row in reader]
+    reader = csv.reader(file)
+    rows = [row for row in reader]
 
 # Modify the specific value
+df = pandas.read_csv(config_file_name, header=0)
 for row in rows:
-  if row[0] == oci_src_db_system_label:
-    row[7] = ""
-    break
+    if row[df.columns.get_loc("MYSQL_DB_LABEL")] == oci_src_db_system_label:
+        row[df.columns.get_loc("MYSQL_DB_TO_TERMINATE")] = ""
+        break
 
-# Write the modified data back to the file
+# Write the updated configuration back to the file
 with open(config_file_name, mode='w', newline='') as file:
-  writer = csv.writer(file)
-  writer.writerows(rows)
+    writer = csv.writer(file)
+    writer.writerows(rows)
 
+# Clean up temporary regions file
 os.remove(regions_file)
-print(time.strftime("%Y-%m-%d %H-%M-%S") + " INFO - Terminating MySQL DB System complete : " + to_terminate_ocid + "\n")
+print(f"{datetime.datetime.now(timezone.utc)} INFO - Termination of MySQL DB System complete: {to_terminate_ocid}\n")
