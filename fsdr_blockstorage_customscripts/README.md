@@ -131,4 +131,9 @@ To enable detailed logs, adjust the logging level in the scripts:
 logging.basicConfig(level=logging.DEBUG)
 ```
 
+## License
 
+Copyright (c) 2025 Oracle and/or its affiliates.
+
+Released under the Universal Permissive License v1.0 as shown at
+<https://oss.oracle.com/licenses/upl/>.
