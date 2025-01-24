@@ -5,12 +5,6 @@ Licensed under the Universal Permissive License (UPL) 1.0 as shown at https://os
 #!/usr/bin/python3.6.8 -Es
 # -*- coding: utf-8 -*-
 
-"""
-Script tested in Python 3.6.8
-Please follow this instruction to configure OCI CLI https://docs.oracle.com/en-us/iaas/Content/API/SDKDocs/cliinstall.htm
-python3 bss_update_cmk.py --profile ASHBURN --drpg_id ocid1.drprotectiongroup.oc1.iad.amaaaaaahmwiikaaexpibaimoyxfcjhwppvlbbr3skjfli3ddrpqbww23sva --key_tag ashburn_key --dev_region us-ashburn-1
-"""
-
 import logging
 import json
 import argparse
