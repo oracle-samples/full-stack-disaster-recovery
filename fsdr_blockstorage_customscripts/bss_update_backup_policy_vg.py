@@ -17,23 +17,23 @@ parser = argparse.ArgumentParser(
     description="This script is used to update the backup policies on Volume Groups "
     "after Disaster Recovery plan execution\n"
     " [REQUIRED] params:\n"
-    "   --drpg_id\n"
-    "   --backup_policy_id\n"
+    "   --dr-protection-group-id\n"
+    "   --backup-policy-id\n"
     " [OPTIONAL] params:\n"
     "   --profile\n"
-    "   --config_file\n"
-    "   --service_endpoint\n"
+    "   --config-file\n"
+    "   --service-endpoint\n"
 )
 
 parser.add_argument(
-    "--drpg_id",
+    "--dr-protection-group-id",
     required=True,
     type= str,
     help="Disaster recovery protection group OCID"
 )
 
 parser.add_argument(
-    "--backup_policy_id",
+    "--backup-policy-id",
     required=True,
     type= str,
     help="Backup policy OCID"
@@ -47,14 +47,14 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "--service_endpoint",
+    "--service-endpoint",
     required=False,
     type=str,
     help="OCI service endpoint for disaster recovery API calls"
 )
 
 parser.add_argument(
-    "--config_file",
+    "--config-file",
     required=False,
     type= str,
     help="OCI cli config file (default /etc/opc/config)"    
@@ -140,7 +140,7 @@ def get_vgroup_id(drpg_id):
     vgroup_ids = []
 
     get_dr_protection_group_response = FSDRclient.get_dr_protection_group(
-        dr_protection_group_id=drpg_id
+        dr-protection-group-id=drpg_id
     )
 
     response_dict = json.loads(str(get_dr_protection_group_response.data))

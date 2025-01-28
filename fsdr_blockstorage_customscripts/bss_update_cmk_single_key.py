@@ -19,23 +19,23 @@ parser = argparse.ArgumentParser(
     "after Disaster Recovery plan execution\n"
     "This is a single key version. It applies the same key to all volumes from Volume groups\n"
     " [REQUIRED] params:\n"
-    "   --drpg_id\n"
-    "   --key_id\n"
+    "   --dr-protection-group-id\n"
+    "   --kms-key-id\n"
     " [OPTIONAL] params:\n"
     "   --profile\n"
-    "   --config_file\n"
-    "   --service_endpoint\n"
+    "   --config-file\n"
+    "   --service-endpoint\n"
 )
 
 parser.add_argument(
-    "--drpg_id",
+    "--dr-protection-group-id",
     required=True,
     type= str,
     help="Disaster recovery protection group OCID"
 )
 
 parser.add_argument(
-    "--key_id",
+    "--kms-key-id",
     required=True,
     type= str,
     help="encryption key OCID"
@@ -143,7 +143,7 @@ def get_vgroup_id(drpg_id):
     vgroup_ids = []
 
     get_dr_protection_group_response = FSDRclient.get_dr_protection_group(
-        dr_protection_group_id=drpg_id
+        dr-protection-group-id=drpg_id
     )
     response_dict = json.loads(str(get_dr_protection_group_response.data))
     members_list = response_dict.get("members", {})
