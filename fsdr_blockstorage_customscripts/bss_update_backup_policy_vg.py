@@ -140,7 +140,7 @@ def get_vgroup_id(drpg_id):
     vgroup_ids = []
 
     get_dr_protection_group_response = FSDRclient.get_dr_protection_group(
-        dr-protection-group-id=drpg_id
+        dr_protection_group_id=drpg_id
     )
 
     response_dict = json.loads(str(get_dr_protection_group_response.data))
