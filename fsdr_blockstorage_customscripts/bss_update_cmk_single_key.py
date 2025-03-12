@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 """
 Copyright (c) 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl/
@@ -20,7 +21,7 @@ parser = argparse.ArgumentParser(
     "This is a single key version. It applies the same key to all volumes from Volume groups\n"
     " [REQUIRED] params:\n"
     "   --dr-protection-group-id\n"
-    "   --kms-key-id\n"
+    "   --kms_key_id\n"
     " [OPTIONAL] params:\n"
     "   --profile\n"
     "   --config-file\n"
@@ -28,14 +29,14 @@ parser = argparse.ArgumentParser(
 )
 
 parser.add_argument(
-    "--dr-protection-group-id",
+    "--dr_protection_group_id",
     required=True,
     type= str,
     help="Disaster recovery protection group OCID"
 )
 
 parser.add_argument(
-    "--kms-key-id",
+    "--kms_key_id",
     required=True,
     type= str,
     help="encryption key OCID"
@@ -195,9 +196,9 @@ def main():
 
     args = parser.parse_args()
 
-    drpg_id = args.drpg_id
+    drpg_id = args.dr_protection_group_id
     profile = args.profile
-    key_id = args.key_id
+    key_id = args.kms_key_id
     service_endpoint = args.service_endpoint
     config_file = args.config_file
 
