@@ -67,12 +67,12 @@ This script updates the enryption key for all volumes in a Volume Group after a 
 
 **Usage:**
 ```bash
-bss_update_cmk_single_key.py --dr-protection-group-id <drpg_ocid> --kms-key-id <key_ocid> [--profile PROFILE] [--config-file config-file] [--service-endpoint service-endpoint]
+bss_update_cmk_single_key.py --dr_protection_group_id <drpg_ocid> --kms_key_id <key_ocid> [--profile PROFILE] [--config-file config-file] [--service-endpoint service-endpoint]
 ```
 **Parameters:**
 - **Required:**
-  - `--dr-protection-group-id`: Disaster recovery protection group OCID
-  - `--kms-key-id`: Encryption key OCID
+  - `--dr_protection_group_id`: Disaster recovery protection group OCID
+  - `--kms_key_id`: Encryption key OCID
 
 - **Optional:**
   - `--profile`: OCI cli profile. In case of Cloud Shell execution this must be the full region name
