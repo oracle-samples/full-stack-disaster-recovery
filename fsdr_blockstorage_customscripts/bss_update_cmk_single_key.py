@@ -20,7 +20,7 @@ parser = argparse.ArgumentParser(
     "after Disaster Recovery plan execution\n"
     "This is a single key version. It applies the same key to all volumes from Volume groups\n"
     " [REQUIRED] params:\n"
-    "   --dr-protection-group-id\n"
+    "   --dr_protection_group_id\n"
     "   --kms_key_id\n"
     " [OPTIONAL] params:\n"
     "   --profile\n"
