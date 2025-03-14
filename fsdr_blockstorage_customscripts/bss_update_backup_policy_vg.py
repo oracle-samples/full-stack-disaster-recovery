@@ -17,23 +17,23 @@ parser = argparse.ArgumentParser(
     description="This script is used to update the backup policies on Volume Groups "
     "after Disaster Recovery plan execution\n"
     " [REQUIRED] params:\n"
-    "   --dr-protection-group-id\n"
-    "   --backup-policy-id\n"
+    "   --dr_protection_group_id\n"
+    "   --backup_policy_id\n"
     " [OPTIONAL] params:\n"
     "   --profile\n"
-    "   --config-file\n"
-    "   --service-endpoint\n"
+    "   --config_file\n"
+    "   --service_endpoint\n"
 )
 
 parser.add_argument(
-    "--dr-protection-group-id",
+    "--dr_protection_group_id",
     required=True,
     type= str,
     help="Disaster recovery protection group OCID"
 )
 
 parser.add_argument(
-    "--backup-policy-id",
+    "--backup_policy_id",
     required=True,
     type= str,
     help="Backup policy OCID"
@@ -47,14 +47,14 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "--service-endpoint",
+    "--service_endpoint",
     required=False,
     type=str,
     help="OCI service endpoint for disaster recovery API calls"
 )
 
 parser.add_argument(
-    "--config-file",
+    "--config_file",
     required=False,
     type= str,
     help="OCI cli config file (default /etc/opc/config)"    
@@ -136,11 +136,11 @@ def get_volumes(vgroup_id):
     volume_ids = response_dict.get("volume_ids", {})   
     return volume_ids
 
-def get_vgroup_id(drpg_id):
+def get_vgroup_id(dr_protection_group_id):
     vgroup_ids = []
 
     get_dr_protection_group_response = FSDRclient.get_dr_protection_group(
-        dr_protection_group_id=drpg_id
+        dr_protection_group_id=dr_protection_group_id
     )
 
     response_dict = json.loads(str(get_dr_protection_group_response.data))
@@ -185,7 +185,7 @@ def main():
 
     args = parser.parse_args()
 
-    drpg_id = args.drpg_id
+    dr_protection_group_id = args.dr_protection_group_id
     profile = args.profile
     backup_policy_id = args.backup_policy_id
     service_endpoint = args.service_endpoint
@@ -193,8 +193,8 @@ def main():
     if config_file==None:
         config_file = "/etc/opc/config"
 
-    if not validate_string_is_an_ocid(drpg_id,"drprotectiongroup"):
-        log("Drpg ID OCID " + drpg_id + " is not a properly formatted OCID")
+    if not validate_string_is_an_ocid(dr_protection_group_id,"drprotectiongroup"):
+        log("Drpg ID OCID " + dr_protection_group_id + " is not a properly formatted OCID")
         exit(-1)
 
     if not validate_string_is_an_ocid(backup_policy_id,"volumebackuppolicy"):
@@ -204,7 +204,7 @@ def main():
     setupenv(profile, service_endpoint, config_file)
 
     #Get volume group details from drpg
-    vgroup_ids = get_vgroup_id(drpg_id)
+    vgroup_ids = get_vgroup_id(dr_protection_group_id)
 
     for vgroup_id in vgroup_ids:
         #List all the volumes and boot volumes from volume group and their freeform tags
