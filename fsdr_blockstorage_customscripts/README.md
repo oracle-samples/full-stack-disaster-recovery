@@ -17,9 +17,9 @@ These tools simplify administrative efforts, minimize human errors, and enhance 
 - **Execution Environment**: Supported environments include local systems, OCI instances (direct or via user-defined DR steps), and Cloud Shell.
 - **Python Version**: Tested with Python 3.6.8 and higher.
 - **OCI CLI Setup**:
-  - For local or OCI instance executions, configure OCI CLI with a profile (`--profile`) and configuration file (`--config-file`).
+  - For local or OCI instance executions, configure OCI CLI with a profile (`--profile`) and configuration file (`--config_file`).
   - For Cloud Shell, the `--profile` parameter must specify the full region name (e.g., `--profile us-ashburn-1`).
-  - For OCI instance executions, Instance Principal authentication can be used instead of `--profile` and `--config-file` parameters, provided the instance has the necessary permissions
+  - For OCI instance executions, Instance Principal authentication can be used instead of `--profile` and `--config_file` parameters, provided the instance has the necessary permissions
 - **Volume Group Membership**: Ensure all target volues are part of a Volume Group and associated with the primary DR Protection Group. Volumes may include both block and boot volumes.
 
 Refer to the [OCI CLI Installation Guide](https://docs.oracle.com/en-us/iaas/Content/API/SDKDocs/cliinstall.htm) for setup instructions.
@@ -67,7 +67,7 @@ This script updates the enryption key for all volumes in a Volume Group after a 
 
 **Usage:**
 ```bash
-bss_update_cmk_single_key.py --dr_protection_group_id <drpg_ocid> --kms_key_id <key_ocid> [--profile PROFILE] [--config-file config-file] [--service-endpoint service-endpoint]
+bss_update_cmk_single_key.py --dr_protection_group_id <drpg_ocid> --kms_key_id <key_ocid> [--profile PROFILE] [--config_file config_file] [--service_endpoint service_endpoint]
 ```
 **Parameters:**
 - **Required:**
@@ -76,47 +76,47 @@ bss_update_cmk_single_key.py --dr_protection_group_id <drpg_ocid> --kms_key_id <
 
 - **Optional:**
   - `--profile`: OCI cli profile. In case of Cloud Shell execution this must be the full region name
-  - `--config-file`: OCI cli config file (default /etc/opc/config)
-  - `--service-endpoint`: OCI service endpoint for disaster recovery API calls
+  - `--config_file`: OCI cli config file (default /etc/opc/config)
+  - `--service_endpoint`: OCI service endpoint for disaster recovery API calls
 
 ## bss_update_cmk_multi_key.py
 This script uses freeform tags to determine and update encryption keys for individual volumes within a Volume Group. Each volume must have appropriate freeform tags for the primary and standby keys.
 
 **Usage:**
 ```bash
-bss_update_cmk_multi_key.py --dr-protection-group-id <drpg_ocid> --freeform-tag-key FREEFORM_TAG [--profile PROFILE] [--config-file config-file] [--service-endpoint service-endpoint]
+bss_update_cmk_multi_key.py --dr-protection-group-id <drpg_ocid> --freeform_tag_key FREEFORM_TAG [--profile PROFILE] [--config_file config_file] [--service_endpoint service_endpoint]
 ```
 **Parameters:**
 - **Required:**
   - `--dr-protection-group-id`: Disaster recovery protection group OCID
-  - `--freeform-tag-key`: Freeform tag where kms key OCID is stored
+  - `--freeform_tag_key`: Freeform tag where kms key OCID is stored
 
 - **Optional:**
   - `--profile`: OCI cli profile. In case of Cloud Shell execution this must be the full region name
-  - `--config-file`: OCI cli config file (default /etc/opc/config)
-  - `--service-endpoint`: OCI service endpoint for disaster recovery API calls
+  - `--config_file`: OCI cli config file (default /etc/opc/config)
+  - `--service_endpoint`: OCI service endpoint for disaster recovery API calls
 
 ## bss_update_backup_policy_vg.py
 This script assigns a user-defined backup policy to Volume Groups after a DR plan execution. Note that it does not support Oracle-defined policies.
 
 **Usage:**
 ```bash
-bss_update_backup_policy_vg.py --dr-protection-group-id <drpg_ocid> --backup-policy-id <backup_policy_ocid> [--profile PROFILE] [--config-file config-file] [--service-endpoint service-endpoint]
+bss_update_backup_policy_vg.py --dr-protection-group-id <drpg_ocid> --backup_policy_id <backup_policy_ocid> [--profile PROFILE] [--config_file config_file] [--service_endpoint service_endpoint]
 ```
 
 **Parameters:**
 - **Required:**
   - `--dr-protection-group-id`: Disaster recovery protection group OCID
-  - `--backup-policy-id`: Backup policy OCID
+  - `--backup_policy_id`: Backup policy OCID
 
 - **Optional:**
   - `--profile`: OCI cli profile. In case of Cloud Shell execution this must be the full region name
-  - `--config-file`: OCI cli config file (default /etc/opc/config)
-  - `--service-endpoint`: OCI service endpoint for disaster recovery API calls
+  - `--config_file`: OCI cli config file (default /etc/opc/config)
+  - `--service_endpoint`: OCI service endpoint for disaster recovery API calls
 
 ### Common Errors and Troubleshooting
 #### Invalid OCID Format
-Ensure that OCIDs provided for `--dr-protection-group-id`, `--kms-key-id` and `--backup-policy-id` follow the correct format. <br>
+Ensure that OCIDs provided for `--dr-protection-group-id`, `--kms-key-id` and `--backup_policy_id` follow the correct format. <br>
 
 #### Incorrect OCI CLI Configuration
 Verify the following:

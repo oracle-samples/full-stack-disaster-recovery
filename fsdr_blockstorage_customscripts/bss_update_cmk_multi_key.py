@@ -18,23 +18,23 @@ parser = argparse.ArgumentParser(
     "after Disaster Recovery plan execution\n"
     "This is a multi key version. It uses volume freeform tags to collect the keys OCID\n"
     " [REQUIRED] params:\n"
-    "   --dr-protection-group-id\n"
-    "   --freeform-tag-key\n"
+    "   --dr_protection_group_id\n"
+    "   --freeform_tag_key\n"
     " [OPTIONAL] params:\n"
     "   --profile\n"
-    "   --config-file\n"
-    "   --service-endpoint\n"
+    "   --config_file\n"
+    "   --service_endpoint\n"
 )
 
 parser.add_argument(
-    "--dr-protection-group-id",
+    "--dr_protection_group_id",
     required=True,
     type= str,
     help="Disaster recovery protection group OCID"
 )
 
 parser.add_argument(
-    "--freeform-tag-key",
+    "--freeform_tag_key",
     required=True,
     type= str,
     help="Freeform tag where kms key OCID is stored"
@@ -48,7 +48,7 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "--service-endpoint",
+    "--service_endpoint",
     required=False,
     type=str,
     help="OCI service endpoint for disaster recovery API calls"
@@ -56,7 +56,7 @@ parser.add_argument(
 
 
 parser.add_argument(
-    "--config-file",
+    "--config_file",
     required=False,
     type= str,
     help="OCI cli config file (default /etc/opc/config)"    
@@ -143,11 +143,11 @@ def get_volumes(vgroup_id):
     volume_ids = response_dict.get("volume_ids", {})    
     return volume_ids
 
-def get_vgroup_id(drpg_id):
+def get_vgroup_id(dr_protection_group_id):
     vgroup_ids = []
 
     get_dr_protection_group_response = FSDRclient.get_dr_protection_group(
-        dr_protection_group_id=drpg_id
+        dr_protection_group_id=dr_protection_group_id
     )
     response_dict = json.loads(str(get_dr_protection_group_response.data))
     members_list = response_dict.get("members", {})
@@ -157,7 +157,7 @@ def get_vgroup_id(drpg_id):
 
     return  vgroup_ids
 
-def get_cmk_tag(volume_id,key_tag):
+def get_cmk_tag(volume_id,freeform_tag_key):
     if "boot" in volume_id:
         get_volume_response = block_storage_client.get_boot_volume(boot_volume_id = volume_id)
     else:
@@ -165,7 +165,7 @@ def get_cmk_tag(volume_id,key_tag):
 
     response_dict = json.loads(str(get_volume_response.data))
     tags_list = response_dict.get("freeform_tags", {})
-    return tags_list.get(key_tag)
+    return tags_list.get(freeform_tag_key)
 
 def update_kms_key(volume_id, kms_key_id):
     if kms_key_id != None:
@@ -208,23 +208,23 @@ def main():
 
     args = parser.parse_args()
 
-    drpg_id = args.drpg_id
+    dr_protection_group_id = args.dr_protection_group_id
     profile = args.profile
-    key_tag = args.key_tag
+    freeform_tag_key = args.freeform_tag_key
     service_endpoint = args.service_endpoint
     config_file = args.config_file
 
     if config_file==None:
         config_file = "/etc/opc/config"
 
-    if not validate_string_is_an_ocid(drpg_id,"drprotectiongroup"):
-        log("Drpg ID OCID " + drpg_id + " is not a properly formatted OCID")
+    if not validate_string_is_an_ocid(dr_protection_group_id,"drprotectiongroup"):
+        log("Drpg ID OCID " + dr_protection_group_id + " is not a properly formatted OCID")
         exit(-1)
 
     setupenv(profile, service_endpoint, config_file)
 
     #Get volume group details from drpg
-    vgroup_ids = get_vgroup_id(drpg_id)
+    vgroup_ids = get_vgroup_id(dr_protection_group_id)
 
     for vgroup_id in vgroup_ids:
         #List all the volumes and boot volumes from volume group and their freeform tags
@@ -233,7 +233,7 @@ def main():
         
         #Update kms_key ids from freeform tags to volumes and boot volumes from volume group
         for volume_id in volume_ids:
-            kms_key_id = get_cmk_tag(volume_id,key_tag)
+            kms_key_id = get_cmk_tag(volume_id,freeform_tag_key)
             validate_string_is_an_ocid(kms_key_id,"drprotectiongroup")
             if kms_key_id != None:
                 log("Updating Volume " + volume_id + " with key " + kms_key_id)
