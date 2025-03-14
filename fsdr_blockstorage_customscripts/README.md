@@ -84,11 +84,11 @@ This script uses freeform tags to determine and update encryption keys for indiv
 
 **Usage:**
 ```bash
-bss_update_cmk_multi_key.py --dr-protection-group-id <drpg_ocid> --freeform_tag_key FREEFORM_TAG [--profile PROFILE] [--config_file config_file] [--service_endpoint service_endpoint]
+bss_update_cmk_multi_key.py --dr_protection_group_id <drpg_ocid> --freeform_tag_key FREEFORM_TAG [--profile PROFILE] [--config_file config_file] [--service_endpoint service_endpoint]
 ```
 **Parameters:**
 - **Required:**
-  - `--dr-protection-group-id`: Disaster recovery protection group OCID
+  - `--dr_protection_group_id`: Disaster recovery protection group OCID
   - `--freeform_tag_key`: Freeform tag where kms key OCID is stored
 
 - **Optional:**
@@ -101,12 +101,12 @@ This script assigns a user-defined backup policy to Volume Groups after a DR pla
 
 **Usage:**
 ```bash
-bss_update_backup_policy_vg.py --dr-protection-group-id <drpg_ocid> --backup_policy_id <backup_policy_ocid> [--profile PROFILE] [--config_file config_file] [--service_endpoint service_endpoint]
+bss_update_backup_policy_vg.py --dr_protection_group_id <drpg_ocid> --backup_policy_id <backup_policy_ocid> [--profile PROFILE] [--config_file config_file] [--service_endpoint service_endpoint]
 ```
 
 **Parameters:**
 - **Required:**
-  - `--dr-protection-group-id`: Disaster recovery protection group OCID
+  - `--dr_protection_group_id`: Disaster recovery protection group OCID
   - `--backup_policy_id`: Backup policy OCID
 
 - **Optional:**
@@ -116,7 +116,7 @@ bss_update_backup_policy_vg.py --dr-protection-group-id <drpg_ocid> --backup_pol
 
 ### Common Errors and Troubleshooting
 #### Invalid OCID Format
-Ensure that OCIDs provided for `--dr-protection-group-id`, `--kms-key-id` and `--backup_policy_id` follow the correct format. <br>
+Ensure that OCIDs provided for `--dr_protection_group_id`, `--kms_key_id` and `--backup_policy_id` follow the correct format. <br>
 
 #### Incorrect OCI CLI Configuration
 Verify the following:
