@@ -1,0 +1,43 @@
+{
+    "replication_details": {
+        "primary": {
+            "db_unique_name": "<primary_mds>",
+            "id": "ocid1.mysqldbsystem.oc1.<region1>.xxxxxxxx",
+            "compartment_id": "ocid1.compartment.oc1..xxxxxxxx",
+            "region": "<region1>",
+            "endpoint": "<primary_mds_endpoint>",
+            "port": "3306",
+            "admin_user": "admin",
+            "admin_secrect_id": "ocid1.vaultsecret.oc1.<region1>.xxxxxxxx",
+            "replication_user": "admin",
+            "replication_secrect_id": "ocid1.vaultsecret.oc1.<region1>.xxxxxxxx"
+        },
+        "replicas": [
+            {
+                "db_unique_name": "<replica1_mds>",
+                "id": "ocid1.mysqldbsystem.oc1.<region2>.xxxxxxxx",
+                "compartment_id": "ocid1.compartment.oc1..xxxxxxxx",
+                "region": "<region2>",
+                "endpoint": "replica1_mds_endpoint",
+                "port": "3306",
+                "admin_user": "admin",
+                "admin_secrect_id": "ocid1.vaultsecret.oc1.<region2>.xxxxxxxx",
+                "replication_user": "admin",
+                "replication_secrect_id": "ocid1.vaultsecret.oc1.<region2>.xxxxxxxx",
+                "drill_mysql_id": ""
+            }
+        ]
+    },
+    "dns_details": {
+        "regions": [
+            {
+                "region": "<region1>",
+                "dns_zone_id": "ocid1.dns-zone.oc1.<region1>.xxxxxxxx"
+            },
+            {
+                "region": "<region2>",
+                "dns_zone_id": "ocid1.dns-zone.oc1.<region2>.xxxxxxxx"
+            }
+        ]
+    }
+}
