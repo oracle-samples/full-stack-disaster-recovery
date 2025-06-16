@@ -30,11 +30,35 @@ This repository contains a collection of scripts designed to facilitate Create /
 
 ## Scripts  
 
-### 1. Create Backup (Primary Region) - **`psql_create_bkp.py`**
+### 1. Wrapper script - **`psql_exec_cold_dr.py`**
 
 **Description:**
 
-This script creates a manual backup of an OCI Database with PostgreSQLe, ensuring data is securely stored for recovery purposes.
+This script serves as a control wrapper for running specific OCI Disaster Recovery operations, including switchover, failover, and drills.
+Use it alongside psql_update_dns to execute a comprehensive disaster recovery plan for OCI Database with PostgreSQL.
+
+**Usage:**
+
+```bash  
+psql_exec_cold_dr.py -c CONFIG_FILE [-o {drill,switchover,failover,terminate}] [-t TIMEOUT] [dest_ad_number]
+
+positional arguments:
+  dest_ad_number        Destination Availability Domain Number (Default value is 1 for AD1)
+
+arguments:
+  -c CONFIG_FILE, --config-file CONFIG_FILE
+                        Specify the JSON configuration file.
+  -o {drill,switchover,failover,terminate}, --operation {drill,switchover,failover,terminate}
+                        Specify the operation type to execute. Default operation is drill (Dry Run).
+  -t TIMEOUT, --timeout TIMEOUT
+                        Specify the maximum time to wait, in seconds. Defaults to 1200 seconds.
+```
+
+### 2. Create Backup (Primary Region) - **`psql_create_bkp.py`**
+
+**Description:**
+
+This script creates a manual backup of an OCI Database with PostgreSQL, ensuring data is securely stored for recovery purposes.
 
 **Usage:**
 
@@ -48,7 +72,7 @@ arguments:
                         Specify the maximum time to wait, in seconds. Defaults to 1200 seconds.
 ```
 
-### 2. Copy Configuration (To DR Region) - **`psql_copy_config.py`**
+### 3. Copy Configuration (To DR Region) - **`psql_copy_config.py`**
 
 **Description:**
 
@@ -67,7 +91,7 @@ arguments:
                         Specify the maximum time to wait, in seconds. Defaults to 1200 seconds.
 ```
 
-### 3. Copy Backup (To DR Region) - **`psql_copy_bkp.py`**
+### 4. Copy Backup (To DR Region) - **`psql_copy_bkp.py`**
 
 **Description:**
 
@@ -85,7 +109,7 @@ arguments:
                         Specify the maximum time to wait, in seconds. Defaults to 1200 seconds.
 ```
 
-### 4. Restore Backup (In DR Region) - **`psql_restore_bkp.py`**
+### 5. Restore Backup (In DR Region) - **`psql_restore_bkp.py`**
 
 **Description:**
 
@@ -108,7 +132,7 @@ arguments:
                         Specify the maximum time to wait, in seconds. Defaults to 1200 seconds.
 ```
 
-### 5. Terminate DB - **`psql_terminate_db.py`**
+### 6. Terminate DB - **`psql_terminate_db.py`**
 
 **Description:**
 
@@ -132,7 +156,7 @@ arguments:
                         Specify the maximum time to wait, in seconds. Defaults to 1200 seconds.
 ```
 
-### 6. **`psql_update_dns.py`**
+### 7. **`psql_update_dns.py`**
 
 **Description:**
 
@@ -163,7 +187,7 @@ The `switchover` operation will update the DNS record in **Both** OCI regions wi
 
 The `failover` operation will update the DNS record in DR region with the IP address of the new primary PostgreSQL endpoint restored during the `failover` operation, initiated with the `psql_restore_bkp.py` script.
 
-## Configuration file (xxxx.json)
+## Configuration file (config/xxxx.json)
 
 This JSON file contains information related to the setup and configuration of the OCI Database with PostgreSQL and the DNS zones across multiple regions. The structure is divided into two main sections: psql_db_details and dns_details
 

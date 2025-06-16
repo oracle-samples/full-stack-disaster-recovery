@@ -34,6 +34,7 @@ current_directory = os.path.dirname(os.path.abspath(__file__))
 script_name = os.path.splitext(os.path.basename(__file__))[0]
 # Get the base name of the config ficurrent directory of the script
 base_config_file_name = os.path.basename(config_file_name).split('.')[0]
+config_file = current_directory + "/config/" + os.path.basename(config_file_name)
 
 # Configure logging
 logfilename = psql_utils.config_logging(current_directory,base_config_file_name)
@@ -42,7 +43,7 @@ logging.info(args)
 
 def update_dns():
     # Read the configuration file
-    data = psql_utils.read_config_file(config_file_name)
+    data = psql_utils.read_config_file(config_file)
 
     # Extract region and DNS view details based on the scenario
     if oci_dr_operation == "startdrill":
