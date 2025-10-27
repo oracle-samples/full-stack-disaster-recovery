@@ -2,7 +2,8 @@
 #
 # full_stack_dr_non_std_db_handler.py
 #
-# Copyright (c) 2025, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2025, Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 #    NAME
 #      full_stack_dr_non_std_db_handler.py - <one-line expansion of the name>
@@ -23,6 +24,7 @@ import logging
 import time
 
 import oci
+from oci.util import to_dict
 from oci._vendor.urllib3.exceptions import ConnectTimeoutError, MaxRetryError
 
 
@@ -259,12 +261,12 @@ def poll_container_instance_logs(
 def get_region_code(identity_client, region):
     list_regions_response = identity_client.list_regions()
     regions_list = list_regions_response.data
-    print(regions_list)
     region_code = None
     for region_data in regions_list:
-        if "name" in region_data and region_data["name"]:
-            if "key" in region_data:
-                region_code = region_data["key"].lower()
+        region_dict = to_dict(region_data)
+        if "name" in region_dict and region_dict["name"]:
+            if "key" in region_dict:
+                region_code = region_dict["key"].lower()
                 break
     return region_code
 
