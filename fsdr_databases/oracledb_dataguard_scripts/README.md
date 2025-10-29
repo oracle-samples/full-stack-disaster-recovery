@@ -35,6 +35,7 @@ Allow dynamic-group FullStackDR_Database_DG to manage instance-agent-command-exe
 Allow dynamic-group FullStackDR_Database_DG to manage objects in compartment <compartment_name>
 Allow dynamic-group FullStackDR_Database_DG to manage database-family in compartment <compartment_name>
 Allow dynamic-group FullStackDR_Database_DG to manage compute-container-family in compartment <compartment_name>
+Allow dynamic-group FullStackDR_Database_DG to manage disaster-recovery-family in compartment <compartment_name>
 ```
 
 For more information, refer to the [OCI Full Stack DR Policies Documentation](https://blogs.oracle.com/maa/iam-policies-fullstackdr).
