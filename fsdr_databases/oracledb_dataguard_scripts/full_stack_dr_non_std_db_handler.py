@@ -2,7 +2,7 @@
 #
 # full_stack_dr_non_std_db_handler.py
 #
-# Copyright (c) 2025, Oracle and/or its affiliates.
+# Copyright (c) 2015, Oracle and/or its affiliates. All rights reserved.
 # Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 #    NAME
@@ -78,8 +78,6 @@ def get_database_details(database_client, virtual_network_client, database_id):
 
     db_details["compartmentId"] = database_response.compartment_id
 
-    print(database_response.db_system_id)
-    print(database_response.vm_cluster_id)
     db_details["dbSystemId"] = database_response.db_system_id
     db_details["vmClusterId"] = database_response.vm_cluster_id
 
@@ -188,7 +186,7 @@ def poll_container_instance(container_instance_client, container_instance_id):
                 )
             )
             logger.info(
-                "Sleeping for 30 seconds before polling for container instance status again."
+                "The expected lifecycle state for the container instance was not achieved, polling for its status will continue."
             )
             time.sleep(30)
     return container_instance_lifecycle_state
@@ -234,7 +232,7 @@ def poll_container_instance_logs(
             break
         else:
             curr_itr += 1
-            logger.info("Sleeping for 5 seconds before polling for logs again.")
+            logger.info("Waiting for 5 seconds before polling for logs again.")
             response = container_instance_client.get_container_instance(
                 container_instance_id=container_instance_id
             )
@@ -264,7 +262,7 @@ def get_region_code(identity_client, region):
     region_code = None
     for region_data in regions_list:
         region_dict = to_dict(region_data)
-        if "name" in region_dict and region_dict["name"]:
+        if "name" in region_dict and region_dict["name"] == region:
             if "key" in region_dict:
                 region_code = region_dict["key"].lower()
                 break
@@ -414,12 +412,12 @@ if region_code is not None:
     logger.info("OCIR Image Path to be used: [{0}]".format(ocir_registry))
 
 if ocir_registry is None:
+    ocir_registry = "iad.ocir.io"
     logger.info(
-        "ERROR: Could not fetch Container Image Endpoint - [{0}]".format(ocir_registry)
+        "WARNING: Could not fetch Container Image Endpoint and using default OCIR - [{0}]".format(ocir_registry)
     )
-    exit(1)
 
-image_path = ocir_registry + "/siteguardprod/fsdr-oracledb-handler:latest"
+image_path = ocir_registry + "/idyzoi1jqupd/fsdr-oracledb-handler:1.0.41"
 ci_display_name = "FSDR-CI-Non-Std-DG-Operation-" + dt_string
 container_display_name = "FSDR-Container-Non-Std-DG-Operation"
 vnic_display_name = "FSDR-Container-VNIC-" + dt_string
